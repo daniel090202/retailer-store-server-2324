@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  dev-database:
+    image: postgres:15.0
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: daniel090202
+      POSTGRES_DB: no-brand-store
+    networks:
+      - nestjs-network
+networks:
+  nestjs-network:
