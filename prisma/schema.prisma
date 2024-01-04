@@ -12,16 +12,21 @@ datasource db {
 
 model User {
   id             Int      @id @default(autoincrement())
-  email          String
-  gender         Boolean
+  email          String   @unique
+  gender         Int
   age            Int
-  phone          String
+  phone          String   @unique
   address        String
   position       Int
   hashedPassword String
+  userName       String   @unique
   firstName      String
-  middleName     String
+  middleName     String?
   lastName       String
+  admin          Boolean  @default(false)
+  active         Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@map("users")
 }
