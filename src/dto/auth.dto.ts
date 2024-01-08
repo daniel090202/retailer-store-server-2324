@@ -96,12 +96,12 @@ class UserDTO implements IUser {
 class LoginDTO implements ILogin {
   @IsString()
   @IsNotEmpty()
-  @Length(6, 15)
+  @Length(6, 30)
   userName: string;
 
   @IsString()
   @IsNotEmpty()
-  @Length(6, 15)
+  @Length(6, 30)
   password: string;
 
   constructor(userName: string, password: string) {
