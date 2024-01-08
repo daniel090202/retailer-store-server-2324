@@ -5,9 +5,9 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@/prisma/prisma.service';
 
-import { GenerateTokens } from '@/utils';
+import { UserDTO, LoginDTO } from '@/dto';
 
-import { UserDTO, LoginDTO } from './dto';
+import { GenerateTokens } from '@/utils';
 
 @Injectable({})
 class AuthService {
@@ -44,7 +44,7 @@ class AuthService {
             message: 'Credentials failed.',
           };
         } else {
-          const accessToken = await this.generateTokens.signAccessToken(
+          const { accessToken } = await this.generateTokens.signAccessToken(
             user.userName,
           );
 

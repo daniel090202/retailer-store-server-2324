@@ -30,3 +30,32 @@ model User {
 
   @@map("users")
 }
+
+model Product {
+  id               Int      @id @default(autoincrement())
+  SKU              String   @unique
+  UPC              String
+  name             String
+  brand            String
+  forGender        Int
+  category         Int[]
+  size             String[]
+  color            String[]
+  originalPrice    Int
+  salePrice        Int
+  unit             Int
+  initialInventory Int
+  minimumInventory Int
+  maximumInventory Int
+  remainInventory  Int
+  soldQuantity     Int
+  storageLocation  Int[]
+  displayLocation  Int[]
+  active           Boolean  @default(false)
+  archived         Boolean  @default(false)
+  verified         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("products")
+}

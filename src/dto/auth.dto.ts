@@ -34,6 +34,7 @@ class UserDTO implements IUser {
   @Max(45)
   age: number;
 
+  @IsString()
   @IsNotEmpty()
   @Length(10)
   phone: string;
