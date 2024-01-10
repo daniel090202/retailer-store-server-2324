@@ -9,7 +9,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserDTO } from '@/dto';
 
 @Injectable()
-class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+class JwtStrategy extends PassportStrategy(Strategy, 'users') {
   constructor(
     private configService: ConfigService,
     private prismaService: PrismaService,

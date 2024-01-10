@@ -1,3 +1,5 @@
+import * as cookieParser from 'cookie-parser';
+
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
@@ -15,6 +17,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+  app.use(cookieParser());
   app.useBodyParser('urlencoded', { limit: '50mb', extended: false });
   app.useGlobalPipes(
     new ValidationPipe({

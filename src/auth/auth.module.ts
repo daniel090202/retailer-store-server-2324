@@ -8,7 +8,7 @@ import { GenerateTokens } from '@/utils';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 
-import { JwtStrategy } from './strategy';
+import { JwtStrategy } from '../strategy';
 
 @Module({
   imports: [PrismaModule, JwtModule.register({})],

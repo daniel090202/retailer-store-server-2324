@@ -1,4 +1,6 @@
 import * as argon from 'argon2';
+import { Request, Response } from 'express';
+
 import { Injectable, HttpStatus } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
@@ -18,6 +20,27 @@ class AuthService {
   ) {}
 
   generateTokens = new GenerateTokens(this.jwtService, this.configService);
+
+  async refreshToken(userName: string) {
+    try {
+      const { accessToken } =
+        await this.generateTokens.signAccessToken(userName);
+
+      const { refreshToken } =
+        await this.generateTokens.signRefreshToken(userName);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Token has been successfully refreshed.',
+        accessToken: accessToken,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
 
   async login(loginDTO: LoginDTO) {
     try {
@@ -48,11 +71,18 @@ class AuthService {
             user.userName,
           );
 
+          const { refreshToken } = await this.generateTokens.signRefreshToken(
+            user.userName,
+          );
+
           return {
             statusCode: HttpStatus.OK,
             message: 'Successfully logged in.',
             data: user,
-            accessToken: accessToken,
+            serverTokens: {
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+            },
           };
         }
       }

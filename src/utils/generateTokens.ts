@@ -23,6 +23,21 @@ class GenerateTokens {
       accessToken: accessToken,
     };
   }
+
+  async signRefreshToken(userName: string): Promise<{ refreshToken: string }> {
+    const payload = {
+      sub: userName,
+    };
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '30d',
+      secret: this.configService.get('JWT_REFRESH_TOKEN'),
+    });
+
+    return {
+      refreshToken: refreshToken,
+    };
+  }
 }
 
 export { GenerateTokens };

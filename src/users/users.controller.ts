@@ -11,7 +11,7 @@ import { UsersService } from './users.service';
 class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('users'))
   @Get('me')
   @HttpCode(200)
   me(@GetUser() user: User) {
