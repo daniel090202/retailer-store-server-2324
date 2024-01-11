@@ -1,20 +1,14 @@
 import {
-  Min,
-  Max,
   IsInt,
   Length,
-  IsEmail,
   IsArray,
   IsString,
-  IsNumber,
   IsNotEmpty,
   ArrayMinSize,
-  ArrayMaxSize,
-  ValidateNested,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
-import { IProduct } from './product.interface';
+import { IProduct } from '../interfaces';
 
 class ProductDTO implements IProduct {
   @IsString()

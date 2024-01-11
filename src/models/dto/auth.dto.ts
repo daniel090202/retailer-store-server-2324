@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-import { IUser, ILogin } from './auth.interface';
+import { IUser, ILogin } from '../interfaces';
 
 class UserDTO implements IUser {
   @IsEmail()

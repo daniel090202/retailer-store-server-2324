@@ -1,8 +1,4 @@
-import { Request, Response } from 'express';
-
 import {
-  Req,
-  Res,
   Get,
   Post,
   Body,
@@ -13,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-import { UserDTO, LoginDTO } from '@/dto';
+import { UserDTO, LoginDTO } from '@/models';
 
 import { AuthService } from './auth.service';
 
@@ -30,13 +26,13 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  login(@Body() body: LoginDTO) {
-    return this.authService.login(body);
+  loginUser(@Body() body: LoginDTO) {
+    return this.authService.loginUser(body);
   }
 
   @Post('register')
   @HttpCode(200)
-  register(@Body() body: UserDTO) {
-    return this.authService.register(body);
+  registerUser(@Body() body: UserDTO) {
+    return this.authService.registerUser(body);
   }
 }

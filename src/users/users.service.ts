@@ -3,9 +3,7 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 
 @Injectable({})
 class UsersService {
-  constructor() {}
-
-  me(user: User) {
+  async showMe(user: User) {
     const { hashedPassword, ...props } = user;
 
     return {

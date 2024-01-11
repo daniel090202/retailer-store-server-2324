@@ -2,13 +2,13 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
-import { ProductDTO } from '@/dto';
+import { ProductDTO } from '@/models';
 
 @Injectable({})
 class ProductsService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(productDTO: ProductDTO) {
+  async createProduct(productDTO: ProductDTO) {
     try {
       const product: ProductDTO = await this.prismaService.product.create({
         data: {
@@ -54,7 +54,7 @@ class ProductsService {
     }
   }
 
-  async update(productDTO: ProductDTO) {
+  async updateProduct(productDTO: ProductDTO) {
     try {
       const product: ProductDTO = await this.prismaService.product.update({
         where: {

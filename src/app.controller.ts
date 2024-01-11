@@ -1,17 +1,17 @@
 import { ConfigService } from '@nestjs/config';
-import { Controller, Get } from '@nestjs/common';
+import { Get, Controller } from '@nestjs/common';
 
 import { AppService } from './app.service';
 
-@Controller('api/v1/home/')
+@Controller('api/v1/')
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private configService: ConfigService,
   ) {}
 
-  @Get('')
-  get(): string {
-    return this.appService.get();
+  @Get('/')
+  home() {
+    return this.appService.home();
   }
 }

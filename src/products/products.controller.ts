@@ -1,6 +1,6 @@
-import { Post, Body, HttpCode, Controller, Req, Put } from '@nestjs/common';
+import { Get, Put, Post, Body, HttpCode, Controller } from '@nestjs/common';
 
-import { ProductDTO } from '@/dto';
+import { ProductDTO } from '@/models';
 
 import { ProductsService } from './products.service';
 
@@ -8,9 +8,15 @@ import { ProductsService } from './products.service';
 class ProductsController {
   constructor(private productsService: ProductsService) {}
 
+  @Get()
+  @HttpCode(200)
+  getAllProducts() {
+    return;
+  }
+
   @Post('create')
   @HttpCode(200)
-  create(@Body() body: ProductDTO) {
+  createProduct(@Body() body: ProductDTO) {
     const productDTO = new ProductDTO(
       body.SKU,
       body.UPC,
@@ -29,12 +35,12 @@ class ProductsController {
       body.storageLocation,
     );
 
-    return this.productsService.create(productDTO);
+    return this.productsService.createProduct(productDTO);
   }
 
   @Put('update')
   @HttpCode(200)
-  update(@Body() body: ProductDTO) {
+  updateProduct(@Body() body: ProductDTO) {
     const productDTO = new ProductDTO(
       body.SKU,
       body.UPC,
@@ -53,7 +59,7 @@ class ProductsController {
       body.storageLocation,
     );
 
-    return this.productsService.update(productDTO);
+    return this.productsService.updateProduct(productDTO);
   }
 }
 
