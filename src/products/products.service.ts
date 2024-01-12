@@ -8,7 +8,25 @@ import { ProductDTO } from '@/models';
 class ProductsService {
   constructor(private prismaService: PrismaService) {}
 
-  async createProduct(productDTO: ProductDTO) {
+  async getAllProducts(): Promise<ReturnValue> {
+    try {
+      const products: Array<ProductDTO> =
+        await this.prismaService.product.findMany({});
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'All available products.',
+        data: products,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async createProduct(productDTO: ProductDTO): Promise<ReturnValue> {
     try {
       const product: ProductDTO = await this.prismaService.product.create({
         data: {
@@ -49,7 +67,6 @@ class ProductsService {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error.',
-        error,
       };
     }
   }

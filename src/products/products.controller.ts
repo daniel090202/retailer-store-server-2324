@@ -8,13 +8,13 @@ import { ProductsService } from './products.service';
 class ProductsController {
   constructor(private productsService: ProductsService) {}
 
-  @Get()
+  @Get('get-all-products')
   @HttpCode(200)
   getAllProducts() {
-    return;
+    return this.productsService.getAllProducts();
   }
 
-  @Post('create')
+  @Post('create-product')
   @HttpCode(200)
   createProduct(@Body() body: ProductDTO) {
     const productDTO = new ProductDTO(
@@ -38,7 +38,7 @@ class ProductsController {
     return this.productsService.createProduct(productDTO);
   }
 
-  @Put('update')
+  @Put('update-product')
   @HttpCode(200)
   updateProduct(@Body() body: ProductDTO) {
     const productDTO = new ProductDTO(
