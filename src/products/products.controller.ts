@@ -1,4 +1,14 @@
-import { Get, Put, Post, Body, HttpCode, Controller } from '@nestjs/common';
+import {
+  Req,
+  Get,
+  Put,
+  Post,
+  Body,
+  Query,
+  Param,
+  HttpCode,
+  Controller,
+} from '@nestjs/common';
 
 import { ProductDTO } from '@/models';
 
@@ -7,6 +17,14 @@ import { ProductsService } from './products.service';
 @Controller('api/v1/products')
 class ProductsController {
   constructor(private productsService: ProductsService) {}
+
+  @Get('')
+  @HttpCode(200)
+  getProduct(@Query() query: any) {
+    const { SKU } = query;
+
+    return this.productsService.getProduct(SKU);
+  }
 
   @Get('get-all-products')
   @HttpCode(200)

@@ -77,9 +77,12 @@ class UserDTO implements IUser {
     phone: string,
     address: string,
     position: number,
+    userName: string,
     firstName: string,
     lastName: string,
     middleName: string,
+    admin: boolean = false,
+    active: boolean = false,
   ) {
     this.email = email;
     this.gender = gender;
@@ -90,6 +93,8 @@ class UserDTO implements IUser {
     this.firstName = firstName;
     this.lastName = lastName;
     this.middleName = middleName;
+    this.admin = admin;
+    this.active = active;
   }
 }
 

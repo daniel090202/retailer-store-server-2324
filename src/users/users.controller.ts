@@ -16,6 +16,12 @@ class UsersController {
   showMe(@GetUser() user: User) {
     return this.usersService.showMe(user);
   }
+
+  @Get('get-all-users')
+  @HttpCode(200)
+  getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
 }
 
 export { UsersController };
