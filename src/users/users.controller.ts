@@ -1,5 +1,5 @@
 import { AuthGuard } from '@nestjs/passport';
-import { Get, HttpCode, Controller, UseGuards } from '@nestjs/common';
+import { Get, Query, HttpCode, Controller, UseGuards } from '@nestjs/common';
 
 import { User } from '@prisma/client';
 import { GetUser } from '@/decorators';
@@ -9,6 +9,14 @@ import { UsersService } from './users.service';
 @Controller('api/v1/users')
 class UsersController {
   constructor(private usersService: UsersService) {}
+
+  @Get('/')
+  @HttpCode(200)
+  getUser(@Query() query: any) {
+    const { userName } = query;
+
+    return this.usersService.getUser(userName);
+  }
 
   @UseGuards(AuthGuard('users'))
   @Get('me')

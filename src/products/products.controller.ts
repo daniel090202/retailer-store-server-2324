@@ -1,11 +1,9 @@
 import {
-  Req,
   Get,
   Put,
   Post,
   Body,
   Query,
-  Param,
   HttpCode,
   Controller,
 } from '@nestjs/common';
@@ -18,7 +16,7 @@ import { ProductsService } from './products.service';
 class ProductsController {
   constructor(private productsService: ProductsService) {}
 
-  @Get('')
+  @Get('/')
   @HttpCode(200)
   getProduct(@Query() query: any) {
     const { SKU } = query;

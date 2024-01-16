@@ -1,0 +1,89 @@
+import {
+  Min,
+  Max,
+  Length,
+  IsInt,
+  IsEmail,
+  IsString,
+  IsNotEmpty,
+} from 'class-validator';
+import { Type, Transform } from 'class-transformer';
+
+import { ICustomer } from '../interfaces';
+
+class CustomerDTO implements ICustomer {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsInt()
+  @Transform(({ value }) => {
+    return Number(value);
+  })
+  @IsNotEmpty()
+  @Min(0)
+  @Max(2)
+  gender: number;
+
+  @IsInt()
+  @Transform(({ value }) => {
+    return Number(value);
+  })
+  @IsNotEmpty()
+  @Min(20)
+  @Max(45)
+  age: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(10)
+  phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 20)
+  customerName: string;
+
+  @IsInt()
+  @Transform(({ value }) => {
+    return Number(value);
+  })
+  @IsNotEmpty()
+  @Min(0)
+  @Max(3)
+  accountLevel: number;
+
+  active: boolean = false;
+  block: boolean = false;
+  verified: boolean = false;
+
+  constructor(
+    email: string,
+    gender: number,
+    age: number,
+    phone: string,
+    address: string,
+    customerName: string,
+    accountLevel: number,
+    active: boolean = false,
+    block: boolean = false,
+    verified: boolean = false,
+  ) {
+    this.email = email;
+    this.gender = gender;
+    this.age = age;
+    this.phone = phone;
+    this.address = address;
+    this.customerName = customerName;
+    this.accountLevel = accountLevel;
+    this.active = active;
+    this.block = block;
+    this.verified = verified;
+  }
+}
+
+export { CustomerDTO };

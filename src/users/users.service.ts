@@ -7,26 +7,99 @@ import { UserDTO } from '@/models';
 class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  exclude(user: User): UserDTO {
-    const userDTO: UserDTO = new UserDTO(
-      user.email,
-      user.gender,
-      user.age,
-      user.phone,
-      user.address,
-      user.position,
-      user.userName,
-      user.firstName,
-      user.lastName,
-      user.middleName as string,
-      user.admin,
-      user.active,
-    );
+  exclude(user: User): {
+    id: number;
+    email: string;
+    gender: number;
+    age: number;
+    phone: string;
+    address: string;
+    position: number;
+    userName: string;
+    firstName: string;
+    middleName: string | null;
+    lastName: string;
+    admin: boolean;
+    active: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  } {
+    const { hashedPassword, ...props } = user;
 
-    return userDTO;
+    return props;
   }
 
-  async showMe(user: User) {
+  async getUser(userName: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: {
+      id: number;
+      email: string;
+      gender: number;
+      age: number;
+      phone: string;
+      address: string;
+      position: number;
+      userName: string;
+      firstName: string;
+      middleName: string | null;
+      lastName: string;
+      admin: boolean;
+      active: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+  }> {
+    try {
+      const user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Product is not existed.',
+        };
+      } else {
+        const userWithoutPassword = this.exclude(user);
+
+        return {
+          statusCode: HttpStatus.OK,
+          message: `${userName}'s details.`,
+          data: userWithoutPassword,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async showMe(user: User): Promise<{
+    statusCode: number;
+    message: string;
+    data?: {
+      id: number;
+      email: string;
+      gender: number;
+      age: number;
+      phone: string;
+      address: string;
+      position: number;
+      userName: string;
+      firstName: string;
+      middleName: string | null;
+      lastName: string;
+      admin: boolean;
+      active: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+  }> {
     const { hashedPassword, ...props } = user;
 
     return {
@@ -36,12 +109,13 @@ class UsersService {
     };
   }
 
-  async getAllUsers() {
+  async getAllUsers(): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Array<User>;
+  }> {
     try {
       const users: Array<User> = await this.prismaService.user.findMany();
-      const usersWithoutPassword: Array<UserDTO> = users.map((user) =>
-        this.exclude(user),
-      );
 
       return {
         statusCode: HttpStatus.OK,
@@ -52,7 +126,6 @@ class UsersService {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error.',
-        error: error,
       };
     }
   }

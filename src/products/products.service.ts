@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { Product } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
