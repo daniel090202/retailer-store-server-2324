@@ -9,6 +9,61 @@ import { CustomerDTO } from '@/models';
 class CustomersService {
   constructor(private prismaService: PrismaService) {}
 
+  async getCustomer(phone: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      const customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: `Customer ${phone} is not existed.`,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `${phone}'s details.`,
+          data: customer,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getAllCustomers(): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Array<Customer>;
+  }> {
+    try {
+      const customers: Array<Customer> =
+        await this.prismaService.customer.findMany({});
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'All available products.',
+        data: customers,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
   async createCustomer(customerDTO: CustomerDTO): Promise<{
     statusCode: number;
     message: string;

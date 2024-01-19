@@ -7,7 +7,7 @@ import {
   IsString,
   IsNotEmpty,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 
 import { ICustomer } from '../interfaces';
 
@@ -36,7 +36,7 @@ class CustomerDTO implements ICustomer {
 
   @IsString()
   @IsNotEmpty()
-  @Length(10)
+  @Length(10, 12)
   phone: string;
 
   @IsString()

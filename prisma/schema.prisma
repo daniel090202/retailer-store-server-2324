@@ -65,7 +65,7 @@ model Customer {
   email        String
   gender       Int
   age          Int
-  phone        String
+  phone        String   @unique
   address      String
   customerName String
   accountLevel Int

@@ -11,26 +11,37 @@ class ProductsService {
   async getProduct(SKU: string): Promise<{
     statusCode: number;
     message: string;
-    data?: Product;
+    data?: Array<Product>;
   }> {
+    if (SKU.length <= 0) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'None of the products were found',
+      };
+    }
+
     try {
-      const product: Product | null =
-        await this.prismaService.product.findUnique({
+      const products: Array<Product> | null =
+        await this.prismaService.product.findMany({
           where: {
-            SKU: SKU,
+            OR: [
+              {
+                SKU: { startsWith: SKU },
+              },
+            ],
           },
         });
 
-      if (product === null) {
+      if (products.length === 0) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'Product is not existed.',
+          message: 'None of the products were found',
         };
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: `${SKU}'s details.`,
-          data: product,
+          message: 'All of products satisfied.',
+          data: products,
         };
       }
     } catch (error) {

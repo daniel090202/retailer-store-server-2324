@@ -18,7 +18,7 @@ class ProductsController {
 
   @Get('/')
   @HttpCode(200)
-  getProduct(@Query() query: any) {
+  getProduct(@Query() query: { SKU: string }) {
     const { SKU } = query;
 
     return this.productsService.getProduct(SKU);
