@@ -4,7 +4,7 @@ declare global {
     gender: number;
     age: number;
     phone: string;
-    address: string;
+    address: number;
     position: number;
     userName: string;
     firstName: string;
@@ -12,6 +12,8 @@ declare global {
     middleName: string;
     admin: boolean;
     active: boolean;
+    archived: boolean;
+    verified: boolean;
   }
 
   interface ILogin {

@@ -25,12 +25,12 @@ class CustomersService {
       if (customer === null) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: `Customer ${phone} is not existed.`,
+          message: `Customer with phone ${phone} is not existed.`,
         };
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: `${phone}'s details.`,
+          message: `${customer.customerName}'s details.`,
           data: customer,
         };
       }
@@ -53,8 +53,36 @@ class CustomersService {
 
       return {
         statusCode: HttpStatus.OK,
-        message: 'All available products.',
+        message: 'All available customers.',
         data: customers,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getAllArchivedCustomers(): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Array<Customer>;
+  }> {
+    try {
+      const archivedCustomers: Array<Customer> =
+        await this.prismaService.customer.findMany({
+          where: {
+            block: {
+              equals: true,
+            },
+          },
+        });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'All archived customers.',
+        data: archivedCustomers,
       };
     } catch (error) {
       return {

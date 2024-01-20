@@ -1,8 +1,8 @@
 import * as argon from 'argon2';
-import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { GenerateTokens } from '@/utils';

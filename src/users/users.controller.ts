@@ -1,6 +1,15 @@
 import { AuthGuard } from '@nestjs/passport';
-import { Get, Query, HttpCode, Controller, UseGuards } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Query,
+  HttpCode,
+  UseGuards,
+  Controller,
+} from '@nestjs/common';
 
+import { UserDTO } from '@/models';
 import { User } from '@prisma/client';
 import { GetUser } from '@/decorators';
 
@@ -29,6 +38,18 @@ class UsersController {
   @HttpCode(200)
   getAllUsers() {
     return this.usersService.getAllUsers();
+  }
+
+  @Get('get-all-archived-users')
+  @HttpCode(200)
+  getAllArchivedUsers() {
+    return this.usersService.getAllArchivedUsers();
+  }
+
+  @Post('create-user')
+  @HttpCode(200)
+  createUser(@Body() body: UserDTO) {
+    return this.usersService.createUser(body);
   }
 }
 

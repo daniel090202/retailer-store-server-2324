@@ -70,6 +70,28 @@ class ProductsService {
     }
   }
 
+  async getAllArchivedProducts() {
+    try {
+      const archivedProducts: Array<Product> =
+        await this.prismaService.product.findMany({
+          where: {
+            archived: { equals: true },
+          },
+        });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'All archived products.',
+        data: archivedProducts,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
   async createProduct(productDTO: ProductDTO): Promise<ReturnValue> {
     try {
       const product: ProductDTO = await this.prismaService.product.create({

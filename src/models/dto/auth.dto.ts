@@ -39,9 +39,14 @@ class UserDTO implements IUser {
   @Length(10)
   phone: string;
 
-  @IsString()
+  @IsInt()
+  @Transform(({ value }) => {
+    return Number(value);
+  })
   @IsNotEmpty()
-  address: string;
+  @Min(0)
+  @Max(2)
+  address: number;
 
   @IsInt()
   @Transform(({ value }) => {
@@ -69,13 +74,15 @@ class UserDTO implements IUser {
   userName: string;
   admin: boolean = false;
   active: boolean = false;
+  archived: boolean = false;
+  verified: boolean = false;
 
   constructor(
     email: string,
     gender: number,
     age: number,
     phone: string,
-    address: string,
+    address: number,
     position: number,
     userName: string,
     firstName: string,
@@ -83,6 +90,8 @@ class UserDTO implements IUser {
     middleName: string,
     admin: boolean = false,
     active: boolean = false,
+    archived: boolean = false,
+    verified: boolean = false,
   ) {
     this.email = email;
     this.gender = gender;
@@ -95,6 +104,8 @@ class UserDTO implements IUser {
     this.middleName = middleName;
     this.admin = admin;
     this.active = active;
+    this.archived = archived;
+    this.verified = verified;
   }
 }
 

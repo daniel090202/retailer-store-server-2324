@@ -16,7 +16,7 @@ model User {
   gender         Int
   age            Int
   phone          String   @unique
-  address        String
+  address        Int
   position       Int
   hashedPassword String
   userName       String   @unique
@@ -25,6 +25,8 @@ model User {
   lastName       String
   admin          Boolean  @default(false)
   active         Boolean  @default(false)
+  archived       Boolean  @default(false)
+  verified       Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

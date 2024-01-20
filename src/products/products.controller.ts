@@ -30,6 +30,12 @@ class ProductsController {
     return this.productsService.getAllProducts();
   }
 
+  @Get('get-all-archived-products')
+  @HttpCode(200)
+  getAllArchivedProducts() {
+    return this.productsService.getAllArchivedProducts();
+  }
+
   @Post('create-product')
   @HttpCode(200)
   createProduct(@Body() body: ProductDTO) {

@@ -25,8 +25,14 @@ class CustomersController {
 
   @Get('get-all-customers')
   @HttpCode(200)
-  getAllProducts() {
+  getAllCustomers() {
     return this.customersService.getAllCustomers();
+  }
+
+  @Get('get-all-archived-customers')
+  @HttpCode(200)
+  getAllArchivedCustomers() {
+    return this.customersService.getAllArchivedCustomers();
   }
 
   @Post('create-customer')
