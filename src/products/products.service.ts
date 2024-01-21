@@ -8,12 +8,15 @@ import { ProductDTO } from '@/models';
 class ProductsService {
   constructor(private prismaService: PrismaService) {}
 
-  async getProduct(SKU: string): Promise<{
+  async getProducts(
+    SKU: string,
+    filter: string,
+  ): Promise<{
     statusCode: number;
     message: string;
     data?: Array<Product>;
   }> {
-    if (SKU.length <= 0) {
+    if (SKU.length < 0) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
         message: 'None of the products were found',
@@ -21,18 +24,84 @@ class ProductsService {
     }
 
     try {
-      const products: Array<Product> | null =
+      let products: Array<Product> | null =
         await this.prismaService.product.findMany({
           where: {
-            OR: [
-              {
-                SKU: { startsWith: SKU },
-              },
-            ],
+            SKU: { startsWith: SKU },
           },
         });
 
-      if (products.length === 0) {
+      switch (filter) {
+        case 'alphabetical':
+          products = await this.prismaService.product.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                name: 'asc',
+              },
+            ],
+          });
+
+          break;
+        case 'ascending-sale-price':
+          products = await this.prismaService.product.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                salePrice: 'asc',
+              },
+            ],
+          });
+
+          break;
+        case 'descending-sale-price':
+          products = await this.prismaService.product.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                salePrice: 'desc',
+              },
+            ],
+          });
+
+          break;
+        case 'ascending-stock':
+          products = await this.prismaService.product.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                remainInventory: 'asc',
+              },
+            ],
+          });
+
+          break;
+        case 'descending-stock':
+          products = await this.prismaService.product.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                remainInventory: 'desc',
+              },
+            ],
+          });
+
+          break;
+        default:
+          break;
+      }
+
+      if (products === null) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
           message: 'None of the products were found',

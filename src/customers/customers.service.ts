@@ -9,29 +9,86 @@ import { CustomerDTO } from '@/models';
 class CustomersService {
   constructor(private prismaService: PrismaService) {}
 
-  async getCustomer(phone: string): Promise<{
+  async getCustomers(
+    phone: string,
+    filter: string,
+  ): Promise<{
     statusCode: number;
     message: string;
-    data?: Customer;
+    data?: Array<Customer>;
   }> {
+    if (phone.length < 0) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'None of the customers were found',
+      };
+    }
+
     try {
-      const customer: Customer | null =
-        await this.prismaService.customer.findUnique({
+      let customers: Array<Customer> | null =
+        await this.prismaService.customer.findMany({
           where: {
-            phone: phone,
+            phone: { startsWith: phone },
           },
         });
 
-      if (customer === null) {
+      switch (filter) {
+        case 'alphabetical':
+          customers = await this.prismaService.customer.findMany({
+            where: {
+              phone: { startsWith: phone },
+            },
+            orderBy: [
+              {
+                customerName: 'asc',
+              },
+            ],
+          });
+          break;
+        case 'male':
+          customers = await this.prismaService.customer.findMany({
+            where: {
+              AND: [
+                {
+                  phone: { startsWith: phone },
+                },
+                {
+                  gender: { equals: 0 },
+                },
+              ],
+            },
+          });
+
+          break;
+        case 'female':
+          customers = await this.prismaService.customer.findMany({
+            where: {
+              AND: [
+                {
+                  phone: { startsWith: phone },
+                },
+                {
+                  gender: { equals: 1 },
+                },
+              ],
+            },
+          });
+
+          break;
+        default:
+          break;
+      }
+
+      if (customers === null) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: `Customer with phone ${phone} is not existed.`,
+          message: `None of the customers with phone number as ${phone} were not found.`,
         };
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: `${customer.customerName}'s details.`,
-          data: customer,
+          message: `The customers with phone number as ${phone}'s details.`,
+          data: customers,
         };
       }
     } catch (error) {
@@ -48,14 +105,21 @@ class CustomersService {
     data?: Array<Customer>;
   }> {
     try {
-      const customers: Array<Customer> =
+      const customers: Array<Customer> | null =
         await this.prismaService.customer.findMany({});
 
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'All available customers.',
-        data: customers,
-      };
+      if (customers === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'None of the products were found',
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.OK,
+          message: 'All of customers satisfied.',
+          data: customers,
+        };
+      }
     } catch (error) {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

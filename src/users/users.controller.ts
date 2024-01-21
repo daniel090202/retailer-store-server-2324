@@ -21,10 +21,10 @@ class UsersController {
 
   @Get('/')
   @HttpCode(200)
-  getUser(@Query() query: any) {
-    const { userName } = query;
+  getUsersWithQuery(@Query() query: { userName: string; filter: string }) {
+    const { userName, filter } = query;
 
-    return this.usersService.getUser(userName);
+    return this.usersService.getUsers(userName, filter);
   }
 
   @UseGuards(AuthGuard('users'))

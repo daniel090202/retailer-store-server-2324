@@ -17,10 +17,10 @@ class CustomersController {
 
   @Get('/')
   @HttpCode(200)
-  getProduct(@Query() query: any) {
-    const { phone } = query;
+  getProductsWithQuery(@Query() query: { phone: string; filter: string }) {
+    const { phone, filter } = query;
 
-    return this.customersService.getCustomer(phone);
+    return this.customersService.getCustomers(phone, filter);
   }
 
   @Get('get-all-customers')

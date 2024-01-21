@@ -33,10 +33,13 @@ class UsersService {
     return props;
   }
 
-  async getUser(userName: string): Promise<{
+  async getUsers(
+    userName: string,
+    filter: string,
+  ): Promise<{
     statusCode: number;
     message: string;
-    data?: {
+    data?: Array<{
       id: number;
       email: string;
       gender: number;
@@ -52,27 +55,107 @@ class UsersService {
       active: boolean;
       createdAt: Date;
       updatedAt: Date;
-    };
+    }>;
   }> {
+    if (userName.length < 0) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'None of the products were found.',
+      };
+    }
+
     try {
-      const user: User | null = await this.prismaService.user.findUnique({
+      let users: Array<User> | null = await this.prismaService.user.findMany({
         where: {
-          userName: userName,
+          userName: { startsWith: userName },
         },
       });
 
-      if (user === null) {
+      switch (filter) {
+        case 'alphabetical':
+          users = await this.prismaService.user.findMany({
+            where: {
+              userName: { startsWith: userName },
+            },
+            orderBy: [
+              {
+                userName: 'asc',
+              },
+            ],
+          });
+          break;
+        case 'male':
+          users = await this.prismaService.user.findMany({
+            where: {
+              AND: [
+                {
+                  userName: { startsWith: userName },
+                },
+                {
+                  gender: { equals: 0 },
+                },
+              ],
+            },
+          });
+
+          break;
+        case 'female':
+          users = await this.prismaService.user.findMany({
+            where: {
+              AND: [
+                {
+                  userName: { startsWith: userName },
+                },
+                {
+                  gender: { equals: 1 },
+                },
+              ],
+            },
+          });
+
+          break;
+        case 'ascending-age':
+          users = await this.prismaService.user.findMany({
+            where: {
+              userName: { startsWith: userName },
+            },
+            orderBy: [
+              {
+                age: 'asc',
+              },
+            ],
+          });
+
+          break;
+        case 'descending-age':
+          users = await this.prismaService.user.findMany({
+            where: {
+              userName: { startsWith: userName },
+            },
+            orderBy: [
+              {
+                age: 'desc',
+              },
+            ],
+          });
+
+          break;
+        default:
+          break;
+      }
+
+      if (users === null) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'Product is not existed.',
+          message: 'None of the products were found.',
         };
       } else {
-        const userWithoutPassword = this.exclude(user);
+        const usersWithoutPassword = users.map((user) => this.exclude(user));
 
         return {
           statusCode: HttpStatus.OK,
-          message: `${userName}'s details.`,
-          data: userWithoutPassword,
+          message: `Results for query of ${userName}'(s) details.`,
+          data: usersWithoutPassword,
         };
       }
     } catch (error) {

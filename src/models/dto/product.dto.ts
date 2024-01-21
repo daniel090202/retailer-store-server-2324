@@ -23,7 +23,7 @@ class ProductDTO implements IProduct {
 
   @IsString()
   @IsNotEmpty()
-  @Length(5, 20)
+  @Length(5, 100)
   name: string;
 
   @IsString()
