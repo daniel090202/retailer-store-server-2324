@@ -29,6 +29,9 @@ class ProductsService {
           where: {
             SKU: { startsWith: SKU },
           },
+          include: {
+            productDetail: true,
+          },
         });
 
       switch (filter) {
@@ -42,6 +45,9 @@ class ProductsService {
                 name: 'asc',
               },
             ],
+            include: {
+              productDetail: true,
+            },
           });
 
           break;
@@ -55,6 +61,9 @@ class ProductsService {
                 salePrice: 'asc',
               },
             ],
+            include: {
+              productDetail: true,
+            },
           });
 
           break;
@@ -68,33 +77,36 @@ class ProductsService {
                 salePrice: 'desc',
               },
             ],
+            include: {
+              productDetail: true,
+            },
           });
 
           break;
-        case 'ascending-stock':
-          products = await this.prismaService.product.findMany({
-            where: {
-              SKU: { startsWith: SKU },
-            },
-            orderBy: [
-              {
-                remainInventory: 'asc',
-              },
-            ],
-          });
+          // case 'ascending-stock':
+          //   products = await this.prismaService.product.findMany({
+          //     where: {
+          //       SKU: { startsWith: SKU },
+          //     },
+          //     orderBy: [
+          //       {
+          //         remainInventory: 'asc',
+          //       },
+          //     ],
+          //   });
 
-          break;
-        case 'descending-stock':
-          products = await this.prismaService.product.findMany({
-            where: {
-              SKU: { startsWith: SKU },
-            },
-            orderBy: [
-              {
-                remainInventory: 'desc',
-              },
-            ],
-          });
+          //   break;
+          // case 'descending-stock':
+          // products = await this.prismaService.product.findMany({
+          //   where: {
+          //     SKU: { startsWith: SKU },
+          //   },
+          //   orderBy: [
+          //     {
+          //       remainInventory: 'desc',
+          //     },
+          //   ],
+          // });
 
           break;
         default:
@@ -121,7 +133,11 @@ class ProductsService {
     }
   }
 
-  async getAllProducts(): Promise<ReturnValue> {
+  async getAllProducts(): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Array<Product>;
+  }> {
     try {
       const products: Array<Product> =
         await this.prismaService.product.findMany({});
@@ -161,30 +177,35 @@ class ProductsService {
     }
   }
 
-  async createProduct(productDTO: ProductDTO): Promise<ReturnValue> {
+  async createProduct(productDTO: ProductDTO): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Product;
+  }> {
     try {
-      const product: ProductDTO = await this.prismaService.product.create({
-        data: {
-          SKU: productDTO.SKU,
-          UPC: productDTO.UPC,
-          name: productDTO.name,
-          brand: productDTO.brand,
-          forGender: productDTO.forGender,
-          category: productDTO.category,
-          size: productDTO.size,
-          color: productDTO.color,
-          originalPrice: productDTO.originalPrice,
-          salePrice: productDTO.salePrice,
-          unit: productDTO.unit,
-          initialInventory: productDTO.initialInventory,
-          minimumInventory: productDTO.minimumInventory,
-          maximumInventory: productDTO.maximumInventory,
-          remainInventory: productDTO.remainInventory,
-          soldQuantity: productDTO.soldQuantity,
-          storageLocation: productDTO.storageLocation,
-          displayLocation: productDTO.displayLocation,
-        },
-      });
+      const product: Product | undefined =
+        await this.prismaService.product.create({
+          data: {
+            SKU: productDTO.SKU,
+            UPC: productDTO.UPC,
+            name: productDTO.name,
+            brand: productDTO.brand,
+            forGender: productDTO.forGender,
+            category: productDTO.category,
+            originalPrice: productDTO.originalPrice,
+            salePrice: productDTO.salePrice,
+            unit: productDTO.unit,
+
+            productDetail: {
+              createMany: {
+                data: productDTO.details,
+              },
+            },
+          },
+          include: {
+            productDetail: true,
+          },
+        });
 
       return {
         statusCode: HttpStatus.OK,
@@ -206,9 +227,13 @@ class ProductsService {
     }
   }
 
-  async updateProduct(productDTO: ProductDTO) {
+  async updateProduct(productDTO: ProductDTO): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Product;
+  }> {
     try {
-      const product: ProductDTO = await this.prismaService.product.update({
+      const product: Product = await this.prismaService.product.update({
         where: {
           SKU: productDTO.SKU,
         },
@@ -219,18 +244,17 @@ class ProductsService {
           brand: productDTO.brand,
           forGender: productDTO.forGender,
           category: productDTO.category,
-          size: productDTO.size,
-          color: productDTO.color,
           originalPrice: productDTO.originalPrice,
           salePrice: productDTO.salePrice,
           unit: productDTO.unit,
-          initialInventory: productDTO.initialInventory,
-          minimumInventory: productDTO.minimumInventory,
-          maximumInventory: productDTO.maximumInventory,
-          remainInventory: productDTO.remainInventory,
-          soldQuantity: productDTO.soldQuantity,
-          storageLocation: productDTO.storageLocation,
-          displayLocation: productDTO.displayLocation,
+
+          productDetail: {
+            deleteMany: [{ SKU: productDTO.SKU }],
+            createMany: { data: productDTO.details },
+          },
+        },
+        include: {
+          productDetail: true,
         },
       });
 
@@ -243,7 +267,6 @@ class ProductsService {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error.',
-        error,
       };
     }
   }

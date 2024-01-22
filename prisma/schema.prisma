@@ -34,18 +34,32 @@ model User {
 }
 
 model Product {
+  id            Int      @id @default(autoincrement())
+  SKU           String   @unique
+  UPC           String
+  name          String
+  brand         String
+  forGender     Int
+  category      Int[]
+  originalPrice Int
+  salePrice     Int
+  unit          Int
+  active        Boolean  @default(false)
+  archived      Boolean  @default(false)
+  verified      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  productDetail ProductDetail[]
+
+  @@map("products")
+}
+
+model ProductDetail {
   id               Int      @id @default(autoincrement())
-  SKU              String   @unique
-  UPC              String
-  name             String
-  brand            String
-  forGender        Int
-  category         Int[]
-  size             String[]
-  color            String[]
-  originalPrice    Int
-  salePrice        Int
-  unit             Int
+  SKU              String
+  size             String
+  color            String
   initialInventory Int
   minimumInventory Int
   maximumInventory Int
@@ -53,13 +67,12 @@ model Product {
   soldQuantity     Int
   storageLocation  Int[]
   displayLocation  Int[]
-  active           Boolean  @default(false)
-  archived         Boolean  @default(false)
-  verified         Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  @@map("products")
+  product Product @relation(fields: [SKU], references: [SKU])
+
+  @@map("productDetails")
 }
 
 model Customer {

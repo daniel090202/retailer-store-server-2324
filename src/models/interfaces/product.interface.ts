@@ -1,3 +1,5 @@
+import { ProductDetailDTO } from '../dto/productDetail.dto';
+
 declare global {
   interface IProduct {
     SKU: string;
@@ -6,18 +8,10 @@ declare global {
     brand: string;
     forGender: number;
     category: Array<number>;
-    size: Array<string>;
-    color: Array<string>;
     originalPrice: number;
     salePrice: number;
     unit: number;
-    initialInventory: number;
-    minimumInventory: number;
-    maximumInventory: number;
-    remainInventory: number;
-    soldQuantity: number;
-    storageLocation: Array<number>;
-    displayLocation: Array<number>;
+    details: Array<ProductDetailDTO>;
 
     active: boolean;
     archived: boolean;
