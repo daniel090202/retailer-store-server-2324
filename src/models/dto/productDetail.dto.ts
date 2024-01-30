@@ -1,3 +1,4 @@
+import { Type, Transform } from 'class-transformer';
 import {
   IsInt,
   Length,
@@ -6,11 +7,20 @@ import {
   IsNotEmpty,
   ArrayMinSize,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
 
 import { IProductDetail } from '../interfaces';
 
 class ProductDetailDTO implements IProductDetail {
+  @IsString()
+  @IsNotEmpty()
+  @Length(10)
+  UPC: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(10)
+  SKU: string;
+
   @IsArray()
   @IsNotEmpty()
   size: string;
@@ -61,6 +71,8 @@ class ProductDetailDTO implements IProductDetail {
   displayLocation: Array<number> = [0];
 
   constructor(
+    UPC: string,
+    SKU: string,
     size: string,
     color: string,
     initialInventory: number,
@@ -68,6 +80,8 @@ class ProductDetailDTO implements IProductDetail {
     maximumInventory: number,
     storageLocation: Array<number>,
   ) {
+    this.UPC = UPC;
+    this.SKU = SKU;
     this.size = size;
     this.color = color;
     this.initialInventory = initialInventory;

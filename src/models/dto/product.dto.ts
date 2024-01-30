@@ -14,11 +14,6 @@ import { ProductDetailDTO } from './productDetail.dto';
 class ProductDTO implements IProduct {
   @IsString()
   @IsNotEmpty()
-  @Length(10)
-  SKU: string;
-
-  @IsString()
-  @IsNotEmpty()
   @Length(12)
   UPC: string;
 
@@ -111,7 +106,6 @@ class ProductDTO implements IProduct {
   verified: boolean = false;
 
   constructor(
-    SKU: string,
     UPC: string,
     name: string,
     brand: string,
@@ -122,7 +116,6 @@ class ProductDTO implements IProduct {
     unit: number,
     details: Array<ProductDetailDTO>,
   ) {
-    this.SKU = SKU;
     this.UPC = UPC;
     this.name = name;
     this.brand = brand;

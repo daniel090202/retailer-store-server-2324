@@ -49,10 +49,10 @@ class CustomerDTO implements ICustomer {
   customerName: string;
 
   @IsInt()
+  @IsNotEmpty()
   @Transform(({ value }) => {
     return Number(value);
   })
-  @IsNotEmpty()
   @Min(0)
   @Max(3)
   accountLevel: number;

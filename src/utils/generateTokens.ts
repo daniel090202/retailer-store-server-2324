@@ -15,7 +15,7 @@ class GenerateTokens {
     };
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '10m',
+      expiresIn: '60m',
       secret: this.configService.get('JWT_ACCESS_TOKEN'),
     });
 

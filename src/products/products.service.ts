@@ -1,25 +1,100 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
-import { Product } from '@prisma/client';
+import { Product, ProductDetail } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { ProductDTO } from '@/models';
+
 @Injectable({})
 class ProductsService {
   constructor(private prismaService: PrismaService) {}
 
-  async getProducts(
+  async getProductsWithSKU(
     SKU: string,
+    filter: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Array<ProductDetail>;
+  }> {
+    if (SKU.length < 0) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'None of the variance of the products were found.',
+      };
+    }
+
+    try {
+      let productDetails: Array<ProductDetail> | null =
+        await this.prismaService.productDetail.findMany({
+          where: {
+            SKU: { startsWith: SKU },
+          },
+        });
+
+      switch (filter) {
+        case 'ascending-stock':
+          productDetails = await this.prismaService.productDetail.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                remainInventory: 'asc',
+              },
+            ],
+          });
+
+          break;
+        case 'descending-stock':
+          productDetails = await this.prismaService.productDetail.findMany({
+            where: {
+              SKU: { startsWith: SKU },
+            },
+            orderBy: [
+              {
+                remainInventory: 'desc',
+              },
+            ],
+          });
+
+          break;
+        default:
+          break;
+      }
+
+      if (productDetails === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'None of the variance of the products were found',
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.OK,
+          message: 'All of the variance of the products satisfied.',
+          data: productDetails,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getProductsWithUPC(
+    UPC: string,
     filter: string,
   ): Promise<{
     statusCode: number;
     message: string;
     data?: Array<Product>;
   }> {
-    if (SKU.length < 0) {
+    if (UPC.length < 0) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
-        message: 'None of the products were found',
+        message: 'None of the products were found.',
       };
     }
 
@@ -27,10 +102,10 @@ class ProductsService {
       let products: Array<Product> | null =
         await this.prismaService.product.findMany({
           where: {
-            SKU: { startsWith: SKU },
+            UPC: { startsWith: UPC },
           },
           include: {
-            productDetail: true,
+            productDetails: true,
           },
         });
 
@@ -38,7 +113,7 @@ class ProductsService {
         case 'alphabetical':
           products = await this.prismaService.product.findMany({
             where: {
-              SKU: { startsWith: SKU },
+              UPC: { startsWith: UPC },
             },
             orderBy: [
               {
@@ -46,7 +121,7 @@ class ProductsService {
               },
             ],
             include: {
-              productDetail: true,
+              productDetails: true,
             },
           });
 
@@ -54,7 +129,7 @@ class ProductsService {
         case 'ascending-sale-price':
           products = await this.prismaService.product.findMany({
             where: {
-              SKU: { startsWith: SKU },
+              UPC: { startsWith: UPC },
             },
             orderBy: [
               {
@@ -62,7 +137,7 @@ class ProductsService {
               },
             ],
             include: {
-              productDetail: true,
+              productDetails: true,
             },
           });
 
@@ -70,7 +145,7 @@ class ProductsService {
         case 'descending-sale-price':
           products = await this.prismaService.product.findMany({
             where: {
-              SKU: { startsWith: SKU },
+              UPC: { startsWith: UPC },
             },
             orderBy: [
               {
@@ -78,35 +153,39 @@ class ProductsService {
               },
             ],
             include: {
-              productDetail: true,
+              productDetails: true,
             },
           });
 
           break;
-          // case 'ascending-stock':
-          //   products = await this.prismaService.product.findMany({
-          //     where: {
-          //       SKU: { startsWith: SKU },
-          //     },
-          //     orderBy: [
-          //       {
-          //         remainInventory: 'asc',
-          //       },
-          //     ],
-          //   });
+        case 'ascending-stock':
+          products = await this.prismaService.product.findMany({
+            where: {
+              UPC: { startsWith: UPC },
+            },
+            include: {
+              productDetails: {
+                orderBy: {
+                  remainInventory: 'asc',
+                },
+              },
+            },
+          });
 
-          //   break;
-          // case 'descending-stock':
-          // products = await this.prismaService.product.findMany({
-          //   where: {
-          //     SKU: { startsWith: SKU },
-          //   },
-          //   orderBy: [
-          //     {
-          //       remainInventory: 'desc',
-          //     },
-          //   ],
-          // });
+          break;
+        case 'descending-stock':
+          products = await this.prismaService.product.findMany({
+            where: {
+              UPC: { startsWith: UPC },
+            },
+            include: {
+              productDetails: {
+                orderBy: {
+                  remainInventory: 'desc',
+                },
+              },
+            },
+          });
 
           break;
         default:
@@ -186,7 +265,6 @@ class ProductsService {
       const product: Product | undefined =
         await this.prismaService.product.create({
           data: {
-            SKU: productDTO.SKU,
             UPC: productDTO.UPC,
             name: productDTO.name,
             brand: productDTO.brand,
@@ -196,14 +274,14 @@ class ProductsService {
             salePrice: productDTO.salePrice,
             unit: productDTO.unit,
 
-            productDetail: {
+            productDetails: {
               createMany: {
                 data: productDTO.details,
               },
             },
           },
           include: {
-            productDetail: true,
+            productDetails: true,
           },
         });
 
@@ -235,10 +313,9 @@ class ProductsService {
     try {
       const product: Product = await this.prismaService.product.update({
         where: {
-          SKU: productDTO.SKU,
+          UPC: productDTO.UPC,
         },
         data: {
-          SKU: productDTO.SKU,
           UPC: productDTO.UPC,
           name: productDTO.name,
           brand: productDTO.brand,
@@ -248,13 +325,13 @@ class ProductsService {
           salePrice: productDTO.salePrice,
           unit: productDTO.unit,
 
-          productDetail: {
-            deleteMany: [{ SKU: productDTO.SKU }],
+          productDetails: {
+            deleteMany: [{ UPC: productDTO.UPC }],
             createMany: { data: productDTO.details },
           },
         },
         include: {
-          productDetail: true,
+          productDetails: true,
         },
       });
 

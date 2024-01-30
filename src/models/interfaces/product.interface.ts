@@ -1,8 +1,7 @@
-import { ProductDetailDTO } from '../dto/productDetail.dto';
+import { ProductDetailDTO } from '../dto';
 
 declare global {
   interface IProduct {
-    SKU: string;
     UPC: string;
     name: string;
     brand: string;

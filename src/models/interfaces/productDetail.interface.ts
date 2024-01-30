@@ -1,5 +1,7 @@
 declare global {
   interface IProductDetail {
+    UPC: string;
+    SKU: string;
     size: string;
     color: string;
     initialInventory: number;

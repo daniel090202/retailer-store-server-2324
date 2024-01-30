@@ -11,7 +11,10 @@ import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
 import { UsersController } from './users/users.controller';
 
+import { OrdersModule } from './orders/orders.module';
+import { CouponsModule } from './coupons/coupons.module';
 import { ProductsModule } from './products/products.module';
+import { CountersModule } from './counters/counters.module';
 import { CustomersModule } from './customers/customers.module';
 
 @Module({
@@ -25,6 +28,9 @@ import { CustomersModule } from './customers/customers.module';
     UsersModule,
     ProductsModule,
     CustomersModule,
+    OrdersModule,
+    CountersModule,
+    CouponsModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, UsersService],

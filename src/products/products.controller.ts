@@ -16,12 +16,20 @@ import { ProductsService } from './products.service';
 class ProductsController {
   constructor(private productsService: ProductsService) {}
 
-  @Get('/')
+  @Get('/get-product-with-sku')
   @HttpCode(200)
-  getProductsWithQuery(@Query() query: { SKU: string; filter: string }) {
+  getProductsWithSKU(@Query() query: { SKU: string; filter: string }) {
     const { SKU, filter } = query;
 
-    return this.productsService.getProducts(SKU, filter);
+    return this.productsService.getProductsWithSKU(SKU, filter);
+  }
+
+  @Get('/get-product-with-upc')
+  @HttpCode(200)
+  getProductsWithUPC(@Query() query: { UPC: string; filter: string }) {
+    const { UPC, filter } = query;
+
+    return this.productsService.getProductsWithUPC(UPC, filter);
   }
 
   @Get('get-all-products')
@@ -40,7 +48,6 @@ class ProductsController {
   @HttpCode(200)
   createProduct(@Body() body: ProductDTO) {
     const productDTO = new ProductDTO(
-      body.SKU,
       body.UPC,
       body.name,
       body.brand,
@@ -59,7 +66,6 @@ class ProductsController {
   @HttpCode(200)
   updateProduct(@Body() body: ProductDTO) {
     const productDTO = new ProductDTO(
-      body.SKU,
       body.UPC,
       body.name,
       body.brand,

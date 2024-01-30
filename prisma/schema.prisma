@@ -30,13 +30,15 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  order  Order[]
+  coupon Coupon[]
+
   @@map("users")
 }
 
 model Product {
   id            Int      @id @default(autoincrement())
-  SKU           String   @unique
-  UPC           String
+  UPC           String   @unique
   name          String
   brand         String
   forGender     Int
@@ -50,14 +52,15 @@ model Product {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  productDetail ProductDetail[]
+  productDetails ProductDetail[]
 
   @@map("products")
 }
 
 model ProductDetail {
   id               Int      @id @default(autoincrement())
-  SKU              String
+  UPC              String
+  SKU              String   @unique
   size             String
   color            String
   initialInventory Int
@@ -70,7 +73,7 @@ model ProductDetail {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  product Product @relation(fields: [SKU], references: [SKU])
+  product Product @relation(fields: [UPC], references: [UPC])
 
   @@map("productDetails")
 }
@@ -90,5 +93,96 @@ model Customer {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  order  Order[]
+  coupon Coupon[]
+
   @@map("customers")
+}
+
+model Order {
+  id                    Int      @id @default(autoincrement())
+  customerPhone         String
+  customerPayment       Int
+  customerPaymentMethod Int
+  counterID             String
+  cashierUserName       String
+  addedCoupons          String[]
+  couponsAmount         Int
+  totalExpense          Int
+  totalAmount           Int
+  totalDiscount         Int
+  exchange              Int
+  notes                 String
+  paymentStatus         Int
+  shipmentBarcode       String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  coupons      Coupon[]
+  orderDetails OrderDetail[]
+
+  user     User      @relation(fields: [cashierUserName], references: [userName])
+  customer Customer  @relation(fields: [customerPhone], references: [phone])
+  counter  Counter   @relation(fields: [counterID], references: [barcode])
+  shipment Shipment? @relation(fields: [shipmentBarcode], references: [barcode])
+
+  @@map("orders")
+}
+
+model OrderDetail {
+  id                Int    @id @default(autoincrement())
+  orderID           Int
+  productSKU        String
+  purchasedQuantity Int
+  totalExpense      Int
+  notes             String
+
+  order Order @relation(fields: [orderID], references: [id])
+
+  @@map("orderDetails")
+}
+
+model Coupon {
+  id                 Int      @id @default(autoincrement())
+  orderID            Int?
+  barcode            String   @unique
+  owner              String?
+  discountPercentage Float
+  usageStatus        Int
+  createdBy          String
+  expiredIn          DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  order    Order?    @relation(fields: [orderID], references: [id])
+  customer Customer? @relation(fields: [owner], references: [phone])
+  user     User      @relation(fields: [createdBy], references: [userName])
+
+  @@map("coupons")
+}
+
+model Counter {
+  id        Int      @id @default(autoincrement())
+  barcode   String   @unique
+  location  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("counters")
+}
+
+model Shipment {
+  id                   Int      @id @default(autoincrement())
+  barcode              String   @unique
+  status               Int
+  deliveredDestination String
+  deliveryCompany      Int
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("shipments")
 }
