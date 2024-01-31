@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
-import { Order } from '@prisma/client';
+import { Order, ProductDetail } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { OrderDTO } from '@/models';
@@ -60,6 +60,44 @@ class OrdersService {
       const shipmentBarcode = orderDTO.shipmentBarcode;
 
       let order: Order | undefined;
+
+      orderDTO.orderDetails.forEach(async (orderDetail) => {
+        const productDetail: ProductDetail | null =
+          await this.prismaService.productDetail.findUnique({
+            where: {
+              SKU: orderDetail.productSKU,
+            },
+          });
+
+        if (productDetail !== null) {
+          if (productDetail.remainInventory < orderDetail.purchasedQuantity) {
+            return {
+              statusCode: HttpStatus.BAD_REQUEST,
+              message: 'Order details mismatched.',
+            };
+          } else {
+            const updatedProductDetail: ProductDetail | null =
+              await this.prismaService.productDetail.update({
+                where: {
+                  SKU: orderDetail.productSKU,
+                },
+                data: {
+                  remainInventory: {
+                    decrement: orderDetail.purchasedQuantity,
+                  },
+                  soldQuantity: {
+                    increment: orderDetail.purchasedQuantity,
+                  },
+                },
+              });
+          }
+        } else {
+          return {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'Order details mismatched.',
+          };
+        }
+      });
 
       switch (shipmentBarcode) {
         case '0000000000':
@@ -132,7 +170,7 @@ class OrdersService {
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: 'Order could not be fulfilled. Please try again.',
+          message: 'Order could not be fulfilled.',
           data: order,
         };
       }

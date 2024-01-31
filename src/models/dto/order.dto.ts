@@ -99,11 +99,11 @@ class OrderDTO implements IOrder {
 
   @IsNotEmpty()
   @Type(() => String)
-  coupons: Array<string>;
+  public coupons: Array<string>;
 
   @IsNotEmpty()
   @Type(() => OrderDetailDTO)
-  orderDetails: Array<OrderDetailDTO>;
+  public orderDetails: Array<OrderDetailDTO>;
 
   constructor(
     customerPhone: string,
