@@ -16,12 +16,20 @@ import { OrdersService } from './orders.service';
 class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  @Get('/')
+  @Get('/get-orders-with-ID')
   @HttpCode(200)
-  getOrdersWithQuery(@Body() body: { ID: number }) {
-    const { ID } = body;
+  getOrdersWithID(@Query() query: { ID: number }) {
+    const { ID } = query;
 
-    return this.ordersService.getOrdersWithQuery(ID);
+    return this.ordersService.getOrdersWithID(ID);
+  }
+
+  @Get('/get-orders-with-phone')
+  @HttpCode(200)
+  getOrdersWithPhone(@Query() query: { customerPhone: string }) {
+    const { customerPhone } = query;
+
+    return this.ordersService.getOrdersWithPhone(customerPhone);
   }
 
   @Post('create-order')

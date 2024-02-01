@@ -9,29 +9,81 @@ import { OrderDTO } from '@/models';
 class OrdersService {
   constructor(private prismaService: PrismaService) {}
 
-  async getOrdersWithQuery(ID: number): Promise<{
+  async getOrdersWithID(ID: number): Promise<{
     statusCode: number;
     message: string;
     data?: Array<Order>;
   }> {
-    if (ID < 0) {
+    if (ID < 0 || ID === undefined) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
         message: 'None of the orders were found',
       };
     }
+
     try {
       const orders: Array<Order> | null =
         await this.prismaService.order.findMany({
           where: {
-            id: { equals: ID },
+            id: { equals: parseInt(ID.toString()) },
           },
           include: {
             orderDetails: true,
           },
         });
 
-      if (orders === null) {
+      if (orders === null || orders.length === 0) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'None of the products were found',
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.OK,
+          message: 'All of orders satisfied.',
+          data: orders,
+        };
+      }
+    } catch (error) {
+      console.error(error);
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getOrdersWithPhone(customerPhone: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Array<Order>;
+  }> {
+    if (customerPhone === undefined) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: `Customer's phone number ${customerPhone} is invalid.`,
+      };
+    }
+
+    if (customerPhone.length < 0) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'None of the orders were found',
+      };
+    }
+
+    try {
+      const orders: Array<Order> | null =
+        await this.prismaService.order.findMany({
+          where: {
+            customerPhone: { startsWith: customerPhone },
+          },
+          include: {
+            orderDetails: true,
+          },
+        });
+
+      if (orders === null || orders.length === 0) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
           message: 'None of the products were found',
@@ -76,20 +128,19 @@ class OrdersService {
               message: 'Order details mismatched.',
             };
           } else {
-            const updatedProductDetail: ProductDetail | null =
-              await this.prismaService.productDetail.update({
-                where: {
-                  SKU: orderDetail.productSKU,
+            await this.prismaService.productDetail.update({
+              where: {
+                SKU: orderDetail.productSKU,
+              },
+              data: {
+                remainInventory: {
+                  decrement: orderDetail.purchasedQuantity,
                 },
-                data: {
-                  remainInventory: {
-                    decrement: orderDetail.purchasedQuantity,
-                  },
-                  soldQuantity: {
-                    increment: orderDetail.purchasedQuantity,
-                  },
+                soldQuantity: {
+                  increment: orderDetail.purchasedQuantity,
                 },
-              });
+              },
+            });
           }
         } else {
           return {
