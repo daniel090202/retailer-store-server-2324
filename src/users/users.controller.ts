@@ -19,12 +19,33 @@ import { UsersService } from './users.service';
 class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Get('/')
+  @Get('/get-user-with-username')
   @HttpCode(200)
-  getUsersWithQuery(@Query() query: { userName: string; filter: string }) {
-    const { userName, filter } = query;
+  getUserWithUserName(@Query() query: { userName: string }) {
+    const { userName } = query;
 
-    return this.usersService.getUsers(userName, filter);
+    return this.usersService.getUserWithUserName(userName);
+  }
+
+  @Get('/get-users-with-username')
+  @HttpCode(200)
+  getUsersWithUserName(
+    @Query()
+    query: {
+      page: number;
+      userName: string;
+      filter: string;
+      archivedUserStatus: string;
+    },
+  ) {
+    const { page, userName, filter, archivedUserStatus } = query;
+
+    return this.usersService.getUsersWithUserName(
+      page,
+      userName,
+      filter,
+      archivedUserStatus,
+    );
   }
 
   @UseGuards(AuthGuard('users'))
@@ -34,16 +55,12 @@ class UsersController {
     return this.usersService.showMe(user);
   }
 
-  @Get('get-all-users')
-  @HttpCode(200)
-  getAllUsers() {
-    return this.usersService.getAllUsers();
-  }
-
   @Get('get-all-archived-users')
   @HttpCode(200)
-  getAllArchivedUsers() {
-    return this.usersService.getAllArchivedUsers();
+  getAllArchivedUsers(@Query() query: { page: number }) {
+    const { page } = query;
+
+    return this.usersService.getAllArchivedUsers(page);
   }
 
   @Post('create-user')

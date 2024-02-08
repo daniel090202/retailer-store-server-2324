@@ -33,13 +33,10 @@ class UsersService {
     return props;
   }
 
-  async getUsers(
-    userName: string,
-    filter: string,
-  ): Promise<{
+  async getUserWithUserName(userName: string): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<{
+    data?: {
       id: number;
       email: string;
       gender: number;
@@ -55,18 +52,91 @@ class UsersService {
       active: boolean;
       createdAt: Date;
       updatedAt: Date;
-    }>;
+    };
   }> {
-    if (userName.length < 0) {
+    try {
+      const user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          archived: false,
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'None of the users were found.',
+        };
+      } else {
+        const userWithoutPassword = this.exclude(user);
+
+        return {
+          statusCode: HttpStatus.OK,
+          message: `The user with user name ${userName}.`,
+          data: userWithoutPassword,
+        };
+      }
+    } catch (error) {
       return {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'None of the products were found.',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getUsersWithUserName(
+    page: number,
+    userName: string,
+    filter: string,
+    archivedUserStatus: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: {
+      totalUser: number;
+      totalPage: number;
+      allUsers: Array<{
+        id: number;
+        email: string;
+        gender: number;
+        age: number;
+        phone: string;
+        address: number;
+        position: number;
+        userName: string;
+        firstName: string;
+        middleName: string | null;
+        lastName: string;
+        admin: boolean;
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+      }>;
+    };
+  }> {
+    if (page < 1) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Page number must be greater than 1.',
       };
     }
 
     try {
+      const itemsPerPage = 7;
+      const actualPage = page - 1;
+
       let users: Array<User> | null = await this.prismaService.user.findMany({
+        skip: actualPage * itemsPerPage,
+        take: itemsPerPage,
         where: {
+          archived: archivedUserStatus === 'archived' ? true : false,
+          userName: { startsWith: userName },
+        },
+      });
+
+      let allUsers: Array<User> = await this.prismaService.user.findMany({
+        where: {
+          archived: archivedUserStatus === 'archived' ? true : false,
           userName: { startsWith: userName },
         },
       });
@@ -74,7 +144,10 @@ class UsersService {
       switch (filter) {
         case 'alphabetical':
           users = await this.prismaService.user.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
+              archived: archivedUserStatus === 'archived' ? true : false,
               userName: { startsWith: userName },
             },
             orderBy: [
@@ -83,10 +156,40 @@ class UsersService {
               },
             ],
           });
+
+          allUsers = await this.prismaService.user.findMany({
+            where: {
+              archived: archivedUserStatus === 'archived' ? true : false,
+              userName: { startsWith: userName },
+            },
+            orderBy: [
+              {
+                userName: 'asc',
+              },
+            ],
+          });
+
           break;
         case 'male':
           users = await this.prismaService.user.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
+              archived: archivedUserStatus === 'archived' ? true : false,
+              AND: [
+                {
+                  userName: { startsWith: userName },
+                },
+                {
+                  gender: { equals: 0 },
+                },
+              ],
+            },
+          });
+
+          allUsers = await this.prismaService.user.findMany({
+            where: {
+              archived: archivedUserStatus === 'archived' ? true : false,
               AND: [
                 {
                   userName: { startsWith: userName },
@@ -101,7 +204,24 @@ class UsersService {
           break;
         case 'female':
           users = await this.prismaService.user.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
+              archived: archivedUserStatus === 'archived' ? true : false,
+              AND: [
+                {
+                  userName: { startsWith: userName },
+                },
+                {
+                  gender: { equals: 1 },
+                },
+              ],
+            },
+          });
+
+          allUsers = await this.prismaService.user.findMany({
+            where: {
+              archived: archivedUserStatus === 'archived' ? true : false,
               AND: [
                 {
                   userName: { startsWith: userName },
@@ -116,8 +236,23 @@ class UsersService {
           break;
         case 'ascending-age':
           users = await this.prismaService.user.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               userName: { startsWith: userName },
+              archived: archivedUserStatus === 'archived' ? true : false,
+            },
+            orderBy: [
+              {
+                age: 'asc',
+              },
+            ],
+          });
+
+          allUsers = await this.prismaService.user.findMany({
+            where: {
+              userName: { startsWith: userName },
+              archived: archivedUserStatus === 'archived' ? true : false,
             },
             orderBy: [
               {
@@ -129,8 +264,23 @@ class UsersService {
           break;
         case 'descending-age':
           users = await this.prismaService.user.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               userName: { startsWith: userName },
+              archived: archivedUserStatus === 'archived' ? true : false,
+            },
+            orderBy: [
+              {
+                age: 'desc',
+              },
+            ],
+          });
+
+          allUsers = await this.prismaService.user.findMany({
+            where: {
+              userName: { startsWith: userName },
+              archived: archivedUserStatus === 'archived' ? true : false,
             },
             orderBy: [
               {
@@ -144,18 +294,25 @@ class UsersService {
           break;
       }
 
+      const totalUser = allUsers.length;
+      const totalPage = Math.ceil(totalUser / itemsPerPage);
+
       if (users === null) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'None of the products were found.',
+          message: 'None of the users were found.',
         };
       } else {
         const usersWithoutPassword = users.map((user) => this.exclude(user));
 
         return {
           statusCode: HttpStatus.OK,
-          message: `Results for query of ${userName}'(s) details.`,
-          data: usersWithoutPassword,
+          message: `All users with user name ${userName} of page ${page} over ${totalPage}.`,
+          data: {
+            totalUser: totalUser,
+            totalPage: totalPage,
+            allUsers: usersWithoutPassword,
+          },
         };
       }
     } catch (error) {
@@ -196,45 +353,54 @@ class UsersService {
     };
   }
 
-  async getAllUsers(): Promise<{
+  async getAllArchivedUsers(page: number): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<User>;
+    data?: {
+      totalPage: number;
+      totalArchivedUser: number;
+      allArchivedUsers: Array<User>;
+    };
   }> {
-    try {
-      const users: Array<User> = await this.prismaService.user.findMany({});
-
+    if (page < 1) {
       return {
-        statusCode: HttpStatus.OK,
-        message: 'All available users.',
-        data: users,
-      };
-    } catch (error) {
-      return {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error.',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Page number must be greater than 1.',
       };
     }
-  }
 
-  async getAllArchivedUsers(): Promise<{
-    statusCode: number;
-    message: string;
-    data?: Array<User>;
-  }> {
     try {
+      const itemsPerPage = 7;
+      const actualPage = page - 1;
+
       const archivedUsers: Array<User> = await this.prismaService.user.findMany(
         {
+          skip: actualPage * itemsPerPage,
+          take: itemsPerPage,
           where: {
             archived: true,
           },
         },
       );
 
+      const allArchivedUsers: Array<User> =
+        await this.prismaService.user.findMany({
+          where: {
+            archived: true,
+          },
+        });
+
+      const totalArchivedUser = allArchivedUsers.length;
+      const totalPage = Math.ceil(totalArchivedUser / itemsPerPage);
+
       return {
         statusCode: HttpStatus.OK,
-        message: 'All archived users.',
-        data: archivedUsers,
+        message: `All archived users of page ${page} over ${totalPage}.`,
+        data: {
+          totalPage: totalPage,
+          totalArchivedUser: totalArchivedUser,
+          allArchivedUsers: archivedUsers,
+        },
       };
     } catch (error) {
       return {

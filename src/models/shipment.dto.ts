@@ -2,7 +2,14 @@ import { Type } from 'class-transformer';
 import { IsString, MaxLength, IsNotEmpty } from 'class-validator';
 
 import { OrderDTO } from './order.dto';
-import { IShipment } from '../interfaces';
+
+declare global {
+  interface IShipment {
+    barcode: string;
+    location: string;
+    orders: Array<OrderDTO>;
+  }
+}
 
 class ShipmentDTO implements IShipment {
   @IsString()

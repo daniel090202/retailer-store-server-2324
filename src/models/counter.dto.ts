@@ -8,7 +8,12 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-import { ICounter } from '../interfaces';
+declare global {
+  interface ICounter {
+    barcode: string;
+    location: number;
+  }
+}
 
 class CounterDTO implements ICounter {
   @IsString()

@@ -15,24 +15,59 @@ import { CustomersService } from './customers.service';
 class CustomersController {
   constructor(private customersService: CustomersService) {}
 
-  @Get('/')
+  @Get('/get-customer-with-phone-number')
   @HttpCode(200)
-  getProductsWithQuery(@Query() query: { phone: string; filter: string }) {
-    const { phone, filter } = query;
+  getCustomerWithPhoneNumber(
+    @Query()
+    query: {
+      phone: string;
+    },
+  ) {
+    const { phone } = query;
 
-    return this.customersService.getCustomers(phone, filter);
+    return this.customersService.getCustomerWithPhoneNumber(phone);
   }
 
-  @Get('get-all-customers')
+  @Get('/get-customers-with-phone-number')
   @HttpCode(200)
-  getAllCustomers() {
-    return this.customersService.getAllCustomers();
+  getCustomersWithPhoneNumber(
+    @Query()
+    query: {
+      page: number;
+      phone: string;
+      filter: string;
+      archivedCustomerStatus: string;
+    },
+  ) {
+    const { page, phone, filter, archivedCustomerStatus } = query;
+
+    return this.customersService.getCustomersWithPhoneNumber(
+      page,
+      phone,
+      filter,
+      archivedCustomerStatus,
+    );
+  }
+
+  @Get('/get-all-customers-with-phone-number')
+  @HttpCode(200)
+  getAllCustomersWithPhoneNumber(
+    @Query()
+    query: {
+      phone: string;
+    },
+  ) {
+    const { phone } = query;
+
+    return this.customersService.getAllCustomersWithPhoneNumber(phone);
   }
 
   @Get('get-all-archived-customers')
   @HttpCode(200)
-  getAllArchivedCustomers() {
-    return this.customersService.getAllArchivedCustomers();
+  getAllArchivedCustomers(@Query() query: { page: number }) {
+    const { page } = query;
+
+    return this.customersService.getAllArchivedCustomers(page);
   }
 
   @Post('create-customer')

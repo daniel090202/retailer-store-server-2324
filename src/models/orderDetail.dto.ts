@@ -8,7 +8,14 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
-import { IOrderDetail } from '../interfaces';
+declare global {
+  interface IOrderDetail {
+    productSKU: string;
+    purchasedQuantity: number;
+    totalExpense: number;
+    notes: string;
+  }
+}
 
 class OrderDetailDTO implements IOrderDetail {
   @IsString()

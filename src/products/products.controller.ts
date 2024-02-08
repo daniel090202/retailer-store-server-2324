@@ -26,22 +26,44 @@ class ProductsController {
 
   @Get('/get-product-with-upc')
   @HttpCode(200)
-  getProductsWithUPC(@Query() query: { UPC: string; filter: string }) {
-    const { UPC, filter } = query;
+  getProductWithUPC(
+    @Query()
+    query: {
+      UPC: string;
+    },
+  ) {
+    const { UPC } = query;
 
-    return this.productsService.getProductsWithUPC(UPC, filter);
+    return this.productsService.getProductWithUPC(UPC);
   }
 
-  @Get('get-all-products')
+  @Get('/get-products-with-upc')
   @HttpCode(200)
-  getAllProducts() {
-    return this.productsService.getAllProducts();
+  getProductsWithUPC(
+    @Query()
+    query: {
+      page: number;
+      UPC: string;
+      filter: string;
+      archivedProductStatus: string;
+    },
+  ) {
+    const { page, UPC, filter, archivedProductStatus } = query;
+
+    return this.productsService.getProductsWithUPC(
+      page,
+      UPC,
+      filter,
+      archivedProductStatus,
+    );
   }
 
   @Get('get-all-archived-products')
   @HttpCode(200)
-  getAllArchivedProducts() {
-    return this.productsService.getAllArchivedProducts();
+  getAllArchivedProducts(@Query() query: { page: number }) {
+    const { page } = query;
+
+    return this.productsService.getAllArchivedProducts(page);
   }
 
   @Post('create-product')

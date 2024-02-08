@@ -1,4 +1,3 @@
-import { Type, Transform } from 'class-transformer';
 import {
   IsInt,
   Length,
@@ -7,8 +6,23 @@ import {
   IsNotEmpty,
   ArrayMinSize,
 } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 
-import { IProductDetail } from '../interfaces';
+declare global {
+  interface IProductDetail {
+    UPC: string;
+    SKU: string;
+    size: string;
+    color: string;
+    initialInventory: number;
+    minimumInventory: number;
+    maximumInventory: number;
+    remainInventory: number;
+    soldQuantity: number;
+    storageLocation: Array<number>;
+    displayLocation: Array<number>;
+  }
+}
 
 class ProductDetailDTO implements IProductDetail {
   @IsString()

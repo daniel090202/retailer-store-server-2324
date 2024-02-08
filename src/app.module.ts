@@ -16,6 +16,7 @@ import { CouponsModule } from './coupons/coupons.module';
 import { ProductsModule } from './products/products.module';
 import { CountersModule } from './counters/counters.module';
 import { CustomersModule } from './customers/customers.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CustomersModule } from './customers/customers.module';
     OrdersModule,
     CountersModule,
     CouponsModule,
+    NotificationsModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, UsersService],

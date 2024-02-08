@@ -17,13 +17,6 @@ class ProductsService {
     message: string;
     data?: Array<ProductDetail>;
   }> {
-    if (SKU.length < 0) {
-      return {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'None of the variance of the products were found.',
-      };
-    }
-
     try {
       let productDetails: Array<ProductDetail> | null =
         await this.prismaService.productDetail.findMany({
@@ -83,37 +76,90 @@ class ProductsService {
     }
   }
 
-  async getProductsWithUPC(
-    UPC: string,
-    filter: string,
-  ): Promise<{
+  async getProductWithUPC(UPC: string): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<Product>;
+    data?: Product;
   }> {
-    if (UPC.length < 0) {
-      return {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'None of the products were found.',
-      };
-    }
-
     try {
-      let products: Array<Product> | null =
-        await this.prismaService.product.findMany({
+      const product: Product | null =
+        await this.prismaService.product.findUnique({
           where: {
-            UPC: { startsWith: UPC },
+            UPC: UPC,
           },
           include: {
             productDetails: true,
           },
         });
 
+      if (product === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'None of the products were found',
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `The product with UPC as ${UPC}.`,
+          data: product,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getProductsWithUPC(
+    page: number,
+    UPC: string,
+    filter: string,
+    archivedProductStatus: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: {
+      totalPage: number;
+      totalProduct: number;
+      allProducts: Array<Product>;
+    };
+  }> {
+    if (page < 1) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Page number must be greater than 1.',
+      };
+    }
+
+    try {
+      const itemsPerPage = 7;
+      const actualPage = page - 1;
+
+      let products: Array<Product> | null;
+
+      const allProducts: Array<Product> | null =
+        await this.prismaService.product.findMany({
+          where: {
+            UPC: { startsWith: UPC },
+            archived: archivedProductStatus === 'archived' ? true : false,
+          },
+          orderBy: [
+            {
+              name: 'asc',
+            },
+          ],
+        });
+
       switch (filter) {
         case 'alphabetical':
           products = await this.prismaService.product.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               UPC: { startsWith: UPC },
+              archived: archivedProductStatus === 'archived' ? true : false,
             },
             orderBy: [
               {
@@ -128,8 +174,11 @@ class ProductsService {
           break;
         case 'ascending-sale-price':
           products = await this.prismaService.product.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               UPC: { startsWith: UPC },
+              archived: archivedProductStatus === 'archived' ? true : false,
             },
             orderBy: [
               {
@@ -144,8 +193,11 @@ class ProductsService {
           break;
         case 'descending-sale-price':
           products = await this.prismaService.product.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               UPC: { startsWith: UPC },
+              archived: archivedProductStatus === 'archived' ? true : false,
             },
             orderBy: [
               {
@@ -160,8 +212,11 @@ class ProductsService {
           break;
         case 'ascending-stock':
           products = await this.prismaService.product.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               UPC: { startsWith: UPC },
+              archived: archivedProductStatus === 'archived' ? true : false,
             },
             include: {
               productDetails: {
@@ -175,8 +230,11 @@ class ProductsService {
           break;
         case 'descending-stock':
           products = await this.prismaService.product.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
               UPC: { startsWith: UPC },
+              archived: archivedProductStatus === 'archived' ? true : false,
             },
             include: {
               productDetails: {
@@ -189,8 +247,23 @@ class ProductsService {
 
           break;
         default:
+          products = await this.prismaService.product.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
+            where: {
+              UPC: { startsWith: UPC },
+              archived: archivedProductStatus === 'archived' ? true : false,
+            },
+            include: {
+              productDetails: true,
+            },
+          });
+
           break;
       }
+
+      const totalProduct = allProducts.length;
+      const totalPage = Math.ceil(totalProduct / itemsPerPage);
 
       if (products === null) {
         return {
@@ -200,8 +273,12 @@ class ProductsService {
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: 'All of products satisfied.',
-          data: products,
+          message: `All the ${archivedProductStatus} products with UPC as ${UPC} of page ${page} over ${totalPage}.`,
+          data: {
+            totalPage: totalPage,
+            allProducts: products,
+            totalProduct: totalProduct,
+          },
         };
       }
     } catch (error) {
@@ -212,41 +289,56 @@ class ProductsService {
     }
   }
 
-  async getAllProducts(): Promise<{
+  async getAllArchivedProducts(page: number): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<Product>;
+    data?: {
+      totalPage: number;
+      totalArchivedProduct: number;
+      allArchivedProducts: Array<Product>;
+    };
   }> {
-    try {
-      const products: Array<Product> =
-        await this.prismaService.product.findMany({});
-
+    if (page < 1) {
       return {
-        statusCode: HttpStatus.OK,
-        message: 'All available products.',
-        data: products,
-      };
-    } catch (error) {
-      return {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error.',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Page number must be greater than 1.',
       };
     }
-  }
 
-  async getAllArchivedProducts() {
     try {
-      const archivedProducts: Array<Product> =
+      const itemsPerPage = 7;
+      const actualPage = page - 1;
+
+      const products: Array<Product> =
         await this.prismaService.product.findMany({
+          skip: actualPage * itemsPerPage,
+          take: itemsPerPage,
           where: {
-            archived: { equals: true },
+            archived: true,
+          },
+          include: {
+            productDetails: true,
           },
         });
 
+      const allProducts: Array<Product> =
+        await this.prismaService.product.findMany({
+          where: {
+            archived: true,
+          },
+        });
+
+      const totalArchivedProduct = allProducts.length;
+      const totalPage = Math.ceil(totalArchivedProduct / itemsPerPage);
+
       return {
         statusCode: HttpStatus.OK,
-        message: 'All archived products.',
-        data: archivedProducts,
+        message: `All archived products of page ${page} over ${totalPage}.`,
+        data: {
+          totalArchivedProduct: totalArchivedProduct,
+          totalPage: totalPage,
+          allArchivedProducts: products,
+        },
       };
     } catch (error) {
       return {

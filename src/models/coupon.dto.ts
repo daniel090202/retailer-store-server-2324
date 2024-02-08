@@ -10,7 +10,17 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
-import { ICoupon } from '../interfaces';
+declare global {
+  interface ICoupon {
+    orderID?: number;
+    barcode: string;
+    owner?: string;
+    discountPercentage: number;
+    usageStatus: number;
+    createdBy: string;
+    expiredIn: Date;
+  }
+}
 
 class CouponDTO implements ICoupon {
   @IsString()

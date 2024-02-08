@@ -9,33 +9,97 @@ import { CustomerDTO } from '@/models';
 class CustomersService {
   constructor(private prismaService: PrismaService) {}
 
-  async getCustomers(
-    phone: string,
-    filter: string,
-  ): Promise<{
+  async getCustomerWithPhoneNumber(phone: string): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<Customer>;
+    data?: Customer;
   }> {
-    if (phone.length < 0) {
+    if (phone === undefined) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
-        message: 'None of the customers were found',
+        message: `Customer's phone number is invalid.`,
       };
     }
 
     try {
-      let customers: Array<Customer> | null =
-        await this.prismaService.customer.findMany({
+      const customer: Customer | null =
+        await this.prismaService.customer.findUnique({
           where: {
-            phone: { startsWith: phone },
+            phone: phone,
           },
         });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: `None of the customers with phone number as ${phone} were not found.`,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `The customer with phone number as ${phone}.`,
+          data: customer,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async getCustomersWithPhoneNumber(
+    page: number,
+    phone: string,
+    filter: string,
+    archivedCustomerStatus: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: {
+      totalPage: number;
+      totalCustomer: number;
+      allCustomers: Array<Customer>;
+    };
+  }> {
+    if (phone === undefined) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `Customer's phone number is invalid.`,
+      };
+    }
+
+    if (page < 1) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Page number must be greater than 1.',
+      };
+    }
+
+    try {
+      const itemsPerPage = 7;
+      const actualPage = page - 1;
+
+      let customers: Array<Customer> | null;
+
+      const allCustomers: Array<Customer> | null =
+        await this.prismaService.customer.findMany({
+          where: {
+            block: false,
+          },
+        });
+
+      const totalCustomer = allCustomers.length;
+      const totalPage = Math.ceil(totalCustomer / itemsPerPage);
 
       switch (filter) {
         case 'alphabetical':
           customers = await this.prismaService.customer.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
+              block: archivedCustomerStatus === 'archived' ? true : false,
               phone: { startsWith: phone },
             },
             orderBy: [
@@ -47,7 +111,10 @@ class CustomersService {
           break;
         case 'male':
           customers = await this.prismaService.customer.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
+              block: archivedCustomerStatus === 'archived' ? true : false,
               AND: [
                 {
                   phone: { startsWith: phone },
@@ -62,7 +129,10 @@ class CustomersService {
           break;
         case 'female':
           customers = await this.prismaService.customer.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
             where: {
+              block: archivedCustomerStatus === 'archived' ? true : false,
               AND: [
                 {
                   phone: { startsWith: phone },
@@ -76,6 +146,14 @@ class CustomersService {
 
           break;
         default:
+          customers = await this.prismaService.customer.findMany({
+            skip: actualPage * itemsPerPage,
+            take: itemsPerPage,
+            where: {
+              block: archivedCustomerStatus === 'archived' ? true : false,
+              phone: { startsWith: phone },
+            },
+          });
           break;
       }
 
@@ -87,8 +165,12 @@ class CustomersService {
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: `The customers with phone number as ${phone}'s details.`,
-          data: customers,
+          message: `All the ${archivedCustomerStatus} customers with phone number as ${phone} of page ${page} over ${totalPage}.`,
+          data: {
+            totalPage: totalPage,
+            allCustomers: customers,
+            totalCustomer: totalCustomer,
+          },
         };
       }
     } catch (error) {
@@ -99,24 +181,35 @@ class CustomersService {
     }
   }
 
-  async getAllCustomers(): Promise<{
+  async getAllCustomersWithPhoneNumber(phone: string): Promise<{
     statusCode: number;
     message: string;
     data?: Array<Customer>;
   }> {
+    if (phone === undefined) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `Customer's phone number is invalid.`,
+      };
+    }
+
     try {
       const customers: Array<Customer> | null =
-        await this.prismaService.customer.findMany({});
+        await this.prismaService.customer.findMany({
+          where: {
+            phone: { startsWith: phone },
+          },
+        });
 
       if (customers === null) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'None of the products were found',
+          message: `None of the customers with phone number as ${phone} were not found.`,
         };
       } else {
         return {
           statusCode: HttpStatus.OK,
-          message: 'All of customers satisfied.',
+          message: `The customer with phone number as ${phone}.`,
           data: customers,
         };
       }
@@ -128,25 +221,53 @@ class CustomersService {
     }
   }
 
-  async getAllArchivedCustomers(): Promise<{
+  async getAllArchivedCustomers(page: number): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<Customer>;
+    data?: {
+      totalPage: number;
+      totalArchivedCustomer: number;
+      allArchivedCustomers: Array<Customer>;
+    };
   }> {
+    if (page < 1) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Page number must be greater than 1.',
+      };
+    }
+
     try {
+      const itemsPerPage = 7;
+      const actualPage = page - 1;
+
       const archivedCustomers: Array<Customer> =
         await this.prismaService.customer.findMany({
+          skip: actualPage * itemsPerPage,
+          take: itemsPerPage,
           where: {
-            block: {
-              equals: true,
-            },
+            block: true,
           },
         });
 
+      const allArchivedCustomers: Array<Customer> =
+        await this.prismaService.customer.findMany({
+          where: {
+            block: true,
+          },
+        });
+
+      const totalArchivedCustomer = allArchivedCustomers.length;
+      const totalPage = Math.ceil(totalArchivedCustomer / itemsPerPage);
+
       return {
         statusCode: HttpStatus.OK,
-        message: 'All archived customers.',
-        data: archivedCustomers,
+        message: `All archived products of page ${page} over ${totalPage}.`,
+        data: {
+          totalPage: totalPage,
+          allArchivedCustomers: archivedCustomers,
+          totalArchivedCustomer: totalArchivedCustomer,
+        },
       };
     } catch (error) {
       return {
@@ -159,10 +280,10 @@ class CustomersService {
   async createCustomer(customerDTO: CustomerDTO): Promise<{
     statusCode: number;
     message: string;
-    data?: CustomerDTO;
+    data?: Customer;
   }> {
     try {
-      const customer: CustomerDTO = await this.prismaService.customer.create({
+      const customer: Customer = await this.prismaService.customer.create({
         data: {
           email: customerDTO.email,
           gender: customerDTO.gender,

@@ -1,4 +1,3 @@
-import { Type, Transform } from 'class-transformer';
 import {
   Min,
   Max,
@@ -8,9 +7,29 @@ import {
   MaxLength,
   IsNotEmpty,
 } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 
-import { IOrder } from '../interfaces';
 import { OrderDetailDTO } from './orderDetail.dto';
+
+declare global {
+  interface IOrder {
+    customerPhone: string;
+    customerPayment: number;
+    customerPaymentMethod: number;
+    counterID: string;
+    cashierUserName: string;
+    couponsAmount: number;
+    totalExpense: number;
+    totalAmount: number;
+    totalDiscount: number;
+    exchange: number;
+    notes: string;
+    paymentStatus: number;
+    shipmentBarcode: string;
+    coupons: Array<string>;
+    orderDetails: Array<OrderDetailDTO>;
+  }
+}
 
 class OrderDTO implements IOrder {
   @IsString()

@@ -8,8 +8,25 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
-import { IProduct } from '../interfaces';
 import { ProductDetailDTO } from './productDetail.dto';
+
+declare global {
+  interface IProduct {
+    UPC: string;
+    name: string;
+    brand: string;
+    forGender: number;
+    category: Array<number>;
+    originalPrice: number;
+    salePrice: number;
+    unit: number;
+    details: Array<ProductDetailDTO>;
+
+    active: boolean;
+    archived: boolean;
+    verified: boolean;
+  }
+}
 
 class ProductDTO implements IProduct {
   @IsString()
