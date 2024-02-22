@@ -410,10 +410,11 @@ class UsersService {
   }
 
   async createUser(userDTO: UserDTO) {
-    const userName = userDTO.email.split('@')[0];
-    const hashedPassword = await argon.hash(userName);
-
     try {
+      const domain = userDTO.email.split('@')[1];
+      const userName = userDTO.email.split('@')[0];
+      const hashedPassword = await argon.hash(userName);
+
       const user = await this.prismaService.user.create({
         data: {
           gender: userDTO.gender,
@@ -561,7 +562,99 @@ class UsersService {
       } else {
         return {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: `Failed to activate the customer with user name as ${userName}`,
+          message: `Failed to activate the user with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async changePassword(
+    userName: string,
+    hashedNewPassword: string,
+    hashedPreviousPassword: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: {
+      id: number;
+      email: string;
+      gender: number;
+      age: number;
+      phone: string;
+      address: number;
+      position: number;
+      userName: string;
+      firstName: string;
+      middleName: string | null;
+      lastName: string;
+      admin: boolean;
+      active: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+  }> {
+    try {
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      const isPasswordsProvidedMatched: boolean = await argon.verify(
+        hashedNewPassword,
+        hashedPreviousPassword,
+      );
+
+      if (isPasswordsProvidedMatched) {
+        return {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: `The provided previous and new passwords from account as ${userName} do not match.`,
+        };
+      }
+
+      const isPasswordMatched: boolean = await argon.verify(
+        hashedNewPassword,
+        user.hashedPassword,
+      );
+
+      if (isPasswordMatched) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The new password for the user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          hashedPassword: hashedNewPassword,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully changed the password of user with user name as ${userName}'s account.`,
+          data: this.exclude(user),
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the password of the user with user name as ${userName}'s account`,
         };
       }
     } catch (error) {

@@ -86,6 +86,25 @@ class UsersController {
     return this.usersService.unblockUser(userName);
   }
 
+  @Patch('change-password')
+  @HttpCode(200)
+  changePassword(
+    @Body()
+    body: {
+      userName: string;
+      hashedNewPassword: string;
+      hashedPreviousPassword: string;
+    },
+  ) {
+    const { userName, hashedNewPassword, hashedPreviousPassword } = body;
+
+    return this.usersService.changePassword(
+      userName,
+      hashedNewPassword,
+      hashedPreviousPassword,
+    );
+  }
+
   @Patch('update-user-first-name')
   @HttpCode(200)
   updateUserFirstName(@Body() body: { userName: string; firstName: string }) {
