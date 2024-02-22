@@ -317,6 +317,448 @@ class CustomersService {
       };
     }
   }
+
+  async blockCustomer(phone: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with phone number as ${phone} was not found.`,
+        };
+      }
+
+      if (customer.block === true) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with phone number as ${phone} has already been blocked.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: phone,
+        },
+        data: {
+          block: true,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully blocked the customer with phone number ${phone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to block the customer with phone number as ${phone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async unblockCustomer(phone: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with phone number as ${phone} was not found.`,
+        };
+      }
+
+      if (customer.block === false) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with phone number as ${phone} has not been blocked.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: phone,
+        },
+        data: {
+          block: false,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully activated the customer with phone number ${phone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to activate the customer with phone number as ${phone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateCustomerEmailAddress(
+    phone: string,
+    email: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      if (phone === '' || phone.length === 0) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid phone number.',
+        };
+      }
+
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with the phone number as ${phone} was not found.`,
+        };
+      }
+
+      if (customer.email === email) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The email address of the customer with the phone number as ${phone} is similar to the previous one.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: phone,
+        },
+        data: {
+          email: email,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the email address of the customer with the phone number as ${phone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the email address of the customer with the phone number as ${phone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateCustomerResidentialAddress(
+    phone: string,
+    address: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      if (phone === '' || phone.length === 0) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid phone number.',
+        };
+      }
+
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with the phone number as ${phone} was not found.`,
+        };
+      }
+
+      if (customer.address === address) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The residential address of the customer with the phone number as ${phone} is similar to the previous one.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: phone,
+        },
+        data: {
+          address: address,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the residential address of the customer with the phone number as ${phone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the residential address of the customer with the phone number as ${phone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateCustomerPhoneNumber(
+    previousPhone: string,
+    updatedPhone: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      if (previousPhone === '' || updatedPhone === '') {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid phone numbers.',
+        };
+      }
+
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: previousPhone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with the phone number as ${previousPhone} was not found.`,
+        };
+      }
+
+      if (customer.phone === updatedPhone) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The new phone number of the customer with the phone number as ${updatedPhone} is similar to the previous one.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: previousPhone,
+        },
+        data: {
+          phone: updatedPhone,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the phone number of the customer with the previous one as ${previousPhone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the phone number of the customer with the previous one as ${previousPhone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateCustomerAge(
+    phone: string,
+    age: number,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      if (phone === '' || phone.length === 0) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid phone number.',
+        };
+      }
+
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with the phone number as ${phone} was not found.`,
+        };
+      }
+
+      if (customer.age === age) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The age of the customer with the phone number as ${phone} is similar to the previous one.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: phone,
+        },
+        data: {
+          age: age,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the age of the customer with the phone number as ${phone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the age of the customer with the phone number as ${phone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateCustomerGender(
+    phone: string,
+    gender: number,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: Customer;
+  }> {
+    try {
+      if (phone === '' || phone.length === 0) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid phone number.',
+        };
+      }
+
+      let customer: Customer | null =
+        await this.prismaService.customer.findUnique({
+          where: {
+            phone: phone,
+          },
+        });
+
+      if (customer === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The customer with the phone number as ${phone} was not found.`,
+        };
+      }
+
+      if (customer.gender === gender) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The gender of the customer with the phone number as ${phone} is similar to the previous one.`,
+        };
+      }
+
+      customer = await this.prismaService.customer.update({
+        where: {
+          phone: phone,
+        },
+        data: {
+          gender: gender,
+        },
+      });
+
+      if (customer !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the gender of the customer with the phone number as ${phone}.`,
+          data: customer,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the gender of the customer with the phone number as ${phone}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
 }
 
 export { CustomersService };

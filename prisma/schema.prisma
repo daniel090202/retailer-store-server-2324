@@ -191,7 +191,7 @@ model Shipment {
 model Notification {
   id           Int      @id @default(autoincrement())
   title        String
-  target       Int
+  target       String
   degree       Int
   type         Int
   content      String

@@ -1,8 +1,8 @@
 import {
   Get,
-  Put,
   Post,
   Body,
+  Patch,
   Query,
   HttpCode,
   Controller,
@@ -22,6 +22,16 @@ class NotificationsController {
     const { ID } = query;
 
     return this.notificationsService.getNotificationWithID(Number(ID));
+  }
+
+  @Get('/get-notifications-for-specific-target')
+  @HttpCode(200)
+  getNotificationsForSpecificTarget(@Query() query: { userName: string }) {
+    const { userName } = query;
+
+    return this.notificationsService.getNotificationsForSpecificTarget(
+      userName,
+    );
   }
 
   @Get('/get-notifications-with-filter-and-category')
@@ -50,7 +60,52 @@ class NotificationsController {
   @Post('create-notification')
   @HttpCode(200)
   createNotification(@Body() body: NotificationDTO) {
+    console.log(body);
     return this.notificationsService.createNotification(body);
+  }
+
+  @Patch('hidden-notification')
+  @HttpCode(200)
+  hiddenNotification(@Body() body: { barcode: number }) {
+    const { barcode } = body;
+
+    return this.notificationsService.hiddenNotification(
+      parseInt(barcode.toString()),
+    );
+  }
+
+  @Patch('publish-notification')
+  @HttpCode(200)
+  publishNotification(@Body() body: { barcode: number }) {
+    const { barcode } = body;
+
+    return this.notificationsService.publishNotification(
+      parseInt(barcode.toString()),
+    );
+  }
+
+  @Patch('update-notification-title')
+  @HttpCode(200)
+  updateNotificationTitle(@Body() body: { barcode: number; title: string }) {
+    const { barcode, title } = body;
+
+    return this.notificationsService.updateNotificationTitle(
+      parseInt(barcode.toString()),
+      title,
+    );
+  }
+
+  @Patch('update-notification-content')
+  @HttpCode(200)
+  updateNotificationContent(
+    @Body() body: { barcode: number; content: string },
+  ) {
+    const { barcode, content } = body;
+
+    return this.notificationsService.updateNotificationContent(
+      parseInt(barcode.toString()),
+      content,
+    );
   }
 }
 

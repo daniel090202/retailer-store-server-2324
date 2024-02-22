@@ -35,7 +35,7 @@ class OrdersService {
       if (orders === null || orders.length === 0) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'None of the products were found',
+          message: 'None of the orders were found',
         };
       } else {
         return {
@@ -86,7 +86,7 @@ class OrdersService {
       if (orders === null || orders.length === 0) {
         return {
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'None of the products were found',
+          message: 'None of the orders were found',
         };
       } else {
         return {

@@ -57,7 +57,6 @@ class UsersService {
     try {
       const user: User | null = await this.prismaService.user.findUnique({
         where: {
-          archived: false,
           userName: userName,
         },
       });
@@ -456,6 +455,521 @@ class UsersService {
         };
       }
 
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async blockUser(userName: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.archived === true) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} has already been blocked.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          archived: true,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully blocked the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to block the user with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async unblockUser(userName: string): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.archived === false) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} has not been blocked.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          archived: false,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully activated the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to activate the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateUserFirstName(
+    userName: string,
+    firstName: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      if (
+        firstName === '' ||
+        firstName.length === 0 ||
+        firstName === undefined
+      ) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid first name.',
+        };
+      }
+
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.firstName === firstName) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The first name of user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          firstName: firstName,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the first name of the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the first name of the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateUserMiddleName(
+    userName: string,
+    middleName: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      if (
+        middleName === '' ||
+        middleName.length === 0 ||
+        middleName === undefined
+      ) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid middle name.',
+        };
+      }
+
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.middleName === middleName) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The middle name of user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          middleName: middleName,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the middle name of the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the middle name of the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateUserLastName(
+    userName: string,
+    lastName: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      if (lastName === '' || lastName.length === 0 || lastName === undefined) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid last name.',
+        };
+      }
+
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.lastName === lastName) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The last name of user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          lastName: lastName,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the last name of the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the last name of the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateUserPhoneNumber(
+    userName: string,
+    phone: string,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      if (phone === '' || phone.length === 0 || phone === undefined) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid phone number.',
+        };
+      }
+
+      if (phone.length < 10 || phone.length > 12) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Invalid length of the user's phone number.`,
+        };
+      }
+
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.phone === phone) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The phone number of user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          phone: phone,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the phone number of the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the phone number of the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateUserAge(
+    userName: string,
+    age: number,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      if (age === 0 || age === undefined) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid age.',
+        };
+      }
+
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.age === age) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The age of user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          age: age,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the age of the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the age of the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error.',
+      };
+    }
+  }
+
+  async updateUserGender(
+    userName: string,
+    gender: number,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data?: User;
+  }> {
+    try {
+      if (gender === undefined) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid gender.',
+        };
+      }
+
+      let user: User | null = await this.prismaService.user.findUnique({
+        where: {
+          userName: userName,
+        },
+      });
+
+      if (user === null) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The user with user name as ${userName} was not found.`,
+        };
+      }
+
+      if (user.gender === gender) {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `The gender of user with user name as ${userName} is similar to the previous one.`,
+        };
+      }
+
+      user = await this.prismaService.user.update({
+        where: {
+          userName: userName,
+        },
+        data: {
+          gender: gender,
+        },
+      });
+
+      if (user !== null) {
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Successfully change the gender of the user with user name as ${userName}.`,
+          data: user,
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Failed to change the gender of the customer with user name as ${userName}`,
+        };
+      }
+    } catch (error) {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error.',

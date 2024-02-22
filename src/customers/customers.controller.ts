@@ -1,8 +1,8 @@
 import {
   Get,
-  Put,
   Post,
   Body,
+  Patch,
   Query,
   HttpCode,
   Controller,
@@ -74,6 +74,78 @@ class CustomersController {
   @HttpCode(200)
   createCustomer(@Body() body: CustomerDTO) {
     return this.customersService.createCustomer(body);
+  }
+
+  @Patch('block-customer')
+  @HttpCode(200)
+  blockCustomer(@Body() body: { phone: string }) {
+    const { phone } = body;
+
+    return this.customersService.blockCustomer(phone);
+  }
+
+  @Patch('unblock-customer')
+  @HttpCode(200)
+  unblockCustomer(@Body() body: { phone: string }) {
+    const { phone } = body;
+
+    return this.customersService.unblockCustomer(phone);
+  }
+
+  @Patch('update-customer-email-address')
+  @HttpCode(200)
+  updateCustomerEmailAddress(@Body() body: { phone: string; email: string }) {
+    const { phone, email } = body;
+
+    return this.customersService.updateCustomerEmailAddress(phone, email);
+  }
+
+  @Patch('update-customer-residential-address')
+  @HttpCode(200)
+  updateCustomerResidentialAddress(
+    @Body() body: { phone: string; address: string },
+  ) {
+    const { phone, address } = body;
+
+    return this.customersService.updateCustomerResidentialAddress(
+      phone,
+      address,
+    );
+  }
+
+  @Patch('update-customer-phone-number')
+  @HttpCode(200)
+  updateCustomerPhoneNumber(
+    @Body() body: { previousPhone: string; updatedPhone: string },
+  ) {
+    const { previousPhone, updatedPhone } = body;
+
+    return this.customersService.updateCustomerPhoneNumber(
+      previousPhone,
+      updatedPhone,
+    );
+  }
+
+  @Patch('update-customer-age')
+  @HttpCode(200)
+  updateCustomerAge(@Body() body: { phone: string; age: number }) {
+    const { phone, age } = body;
+
+    return this.customersService.updateCustomerAge(
+      phone,
+      parseInt(age.toString()),
+    );
+  }
+
+  @Patch('update-customer-gender')
+  @HttpCode(200)
+  updateCustomerGender(@Body() body: { phone: string; gender: number }) {
+    const { phone, gender } = body;
+
+    return this.customersService.updateCustomerGender(
+      phone,
+      parseInt(gender.toString()),
+    );
   }
 }
 export { CustomersController };

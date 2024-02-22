@@ -11,7 +11,7 @@ import { Transform } from 'class-transformer';
 declare global {
   interface INotification {
     title: string;
-    target: number;
+    target: string;
     degree: number;
     type: number;
     content: string;
@@ -25,14 +25,10 @@ class NotificationDTO implements INotification {
   @MaxLength(255)
   public title: string;
 
-  @IsInt()
-  @Transform(({ value }) => {
-    return Number(value);
-  })
+  @IsString()
   @IsNotEmpty()
-  @Min(0)
-  @Max(2)
-  public target: number;
+  @MaxLength(255)
+  public target: string;
 
   @IsInt()
   @Transform(({ value }) => {
@@ -66,7 +62,7 @@ class NotificationDTO implements INotification {
 
   constructor(
     title: string,
-    target: number,
+    target: string,
     degree: number,
     type: number,
     createdBy: string,
