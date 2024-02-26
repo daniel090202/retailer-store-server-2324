@@ -1,25 +1,25 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { AuthModule } from '@/auth/auth.module';
-import { PrismaModule } from '@/prisma/prisma.module';
+import { AuthModule } from '@/auth/auth.module.ts';
+import { PrismaModule } from '@/prisma/prisma.module.ts';
 
-import { HttpModule, HttpService } from '@nestjs/axios';
+import { HttpModule } from '@nestjs/axios';
 
-import { AppService } from './app.service';
-import { AppController } from './app.controller';
+import { AppService } from './app.service.ts';
+import { AppController } from './app.controller.ts';
 
-import { UsersModule } from './users/users.module';
-import { UsersService } from './users/users.service';
-import { UsersController } from './users/users.controller';
+import { UsersModule } from './users/users.module.ts';
+import { UsersService } from './users/users.service.ts';
+import { UsersController } from './users/users.controller.ts';
 
-import { OrdersModule } from './orders/orders.module';
-import { CouponsModule } from './coupons/coupons.module';
-import { ProductsModule } from './products/products.module';
-import { CountersModule } from './counters/counters.module';
-import { CustomersModule } from './customers/customers.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { SalesModule } from './sales/sales.module';
+import { OrdersModule } from './orders/orders.module.ts';
+import { CouponsModule } from './coupons/coupons.module.ts';
+import { ProductsModule } from './products/products.module.ts';
+import { CountersModule } from './counters/counters.module.ts';
+import { CustomersModule } from './customers/customers.module.ts';
+import { NotificationsModule } from './notifications/notifications.module.ts';
+import { SalesModule } from './sales/sales.module.ts';
 
 @Module({
   imports: [
