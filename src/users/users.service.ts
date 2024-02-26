@@ -1,15 +1,24 @@
 import * as argon from 'argon2';
 
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { Injectable, HttpStatus } from '@nestjs/common';
 
 import { User } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { UserDTO } from '@/models';
+import { SMTP } from '@/services';
 
 @Injectable({})
 class UsersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private httpService: HttpService,
+    private prismaService: PrismaService,
+    private configService: ConfigService,
+  ) {}
+
+  smtp = new SMTP(this.httpService, this.configService);
 
   exclude(user: User): {
     id: number;
@@ -343,12 +352,10 @@ class UsersService {
       updatedAt: Date;
     };
   }> {
-    const { hashedPassword, ...props } = user;
-
     return {
       statusCode: HttpStatus.OK,
       message: 'User profile.',
-      data: props,
+      data: this.exclude(user),
     };
   }
 
@@ -411,9 +418,14 @@ class UsersService {
 
   async createUser(userDTO: UserDTO) {
     try {
-      const domain = userDTO.email.split('@')[1];
       const userName = userDTO.email.split('@')[0];
       const hashedPassword = await argon.hash(userName);
+
+      await this.smtp.sendMail({
+        to: userDTO.email,
+        name: 'No Brand Store Department',
+        subject: `Account verification`,
+      });
 
       const user = await this.prismaService.user.create({
         data: {
@@ -575,8 +587,8 @@ class UsersService {
 
   async changePassword(
     userName: string,
-    hashedNewPassword: string,
-    hashedPreviousPassword: string,
+    newPassword: string,
+    previousPassword: string,
   ): Promise<{
     statusCode: number;
     message: string;
@@ -613,20 +625,20 @@ class UsersService {
       }
 
       const isPasswordsProvidedMatched: boolean = await argon.verify(
-        hashedNewPassword,
-        hashedPreviousPassword,
+        user.hashedPassword,
+        previousPassword,
       );
 
-      if (isPasswordsProvidedMatched) {
+      if (!isPasswordsProvidedMatched) {
         return {
           statusCode: HttpStatus.FORBIDDEN,
-          message: `The provided previous and new passwords from account as ${userName} do not match.`,
+          message: `The provided previous password from client ${userName} does not match.`,
         };
       }
 
       const isPasswordMatched: boolean = await argon.verify(
-        hashedNewPassword,
         user.hashedPassword,
+        newPassword,
       );
 
       if (isPasswordMatched) {
@@ -635,6 +647,8 @@ class UsersService {
           message: `The new password for the user with user name as ${userName} is similar to the previous one.`,
         };
       }
+
+      const hashedNewPassword: string = await argon.hash(newPassword);
 
       user = await this.prismaService.user.update({
         where: {

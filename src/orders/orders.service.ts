@@ -61,14 +61,14 @@ class OrdersService {
     if (customerPhone === undefined) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: `Customer's phone number ${customerPhone} is invalid.`,
+        message: `Customer's phone number as ${customerPhone} is empty.`,
       };
     }
 
-    if (customerPhone.length < 0) {
+    if (customerPhone.length > 12 || customerPhone.length > 10) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
-        message: 'None of the orders were found',
+        message: `Customer's phone number as ${customerPhone} is invalid.`,
       };
     }
 

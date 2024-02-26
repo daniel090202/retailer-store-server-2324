@@ -92,16 +92,16 @@ class UsersController {
     @Body()
     body: {
       userName: string;
-      hashedNewPassword: string;
-      hashedPreviousPassword: string;
+      newPassword: string;
+      previousPassword: string;
     },
   ) {
-    const { userName, hashedNewPassword, hashedPreviousPassword } = body;
+    const { userName, newPassword, previousPassword } = body;
 
     return this.usersService.changePassword(
       userName,
-      hashedNewPassword,
-      hashedPreviousPassword,
+      newPassword,
+      previousPassword,
     );
   }
 

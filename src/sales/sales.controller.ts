@@ -19,8 +19,6 @@ class SalesController {
   ) {
     const { page, timeline, endDay, startDay } = query;
 
-    console.log(timeline, endDay, startDay);
-
     return this.salesService.getSalesByTimelineOrTimePeriod(
       parseInt(page),
       parseInt(timeline),

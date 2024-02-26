@@ -1,14 +1,6 @@
-import {
-  Get,
-  Put,
-  Post,
-  Body,
-  Query,
-  HttpCode,
-  Controller,
-} from '@nestjs/common';
+import { Get, Post, Body, Query, HttpCode, Controller } from '@nestjs/common';
 
-import { OrderDTO, CounterDTO, ShipmentDTO } from '@/models';
+import { OrderDTO } from '@/models';
 
 import { OrdersService } from './orders.service';
 

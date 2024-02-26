@@ -15,13 +15,24 @@ class ProductsService {
   ): Promise<{
     statusCode: number;
     message: string;
-    data?: Array<ProductDetail>;
+    data?: Array<{
+      product: Product;
+      detail: ProductDetail;
+    }>;
   }> {
     try {
+      const maxProductReturned = 3;
+
+      const productsWithEachDetail: Array<{
+        product: Product;
+        detail: ProductDetail;
+      }> = [];
+
       let productDetails: Array<ProductDetail> | null =
         await this.prismaService.productDetail.findMany({
+          take: maxProductReturned,
           where: {
-            SKU: { startsWith: SKU },
+            SKU: { endsWith: SKU },
           },
         });
 
@@ -52,8 +63,6 @@ class ProductsService {
           });
 
           break;
-        default:
-          break;
       }
 
       if (productDetails === null) {
@@ -62,10 +71,30 @@ class ProductsService {
           message: 'None of the variance of the products were found',
         };
       } else {
+        for (const productDetail of productDetails) {
+          const product = await this.prismaService.product.findUnique({
+            where: {
+              UPC: productDetail.UPC,
+            },
+          });
+
+          if (product) {
+            productsWithEachDetail.push({
+              product: product,
+              detail: productDetail,
+            });
+          } else {
+            return {
+              statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+              message: 'Internal server error.',
+            };
+          }
+        }
+
         return {
           statusCode: HttpStatus.OK,
-          message: 'All of the variance of the products satisfied.',
-          data: productDetails,
+          message: 'All satisfied products with each variance.',
+          data: productsWithEachDetail,
         };
       }
     } catch (error) {

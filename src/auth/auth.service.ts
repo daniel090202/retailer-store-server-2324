@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 
-import { GenerateTokens } from '@/utils';
+import { GenerateTokens, ExcludeUserProperties } from '@/utils';
 import { UserDTO, LoginDTO } from '@/models';
 
 @Injectable({})
@@ -75,7 +75,7 @@ class AuthService {
           return {
             statusCode: HttpStatus.OK,
             message: 'Successfully logged in.',
-            data: user,
+            data: ExcludeUserProperties(user),
             serverTokens: {
               accessToken: accessToken,
               refreshToken: refreshToken,

@@ -194,8 +194,11 @@ class CustomersService {
     }
 
     try {
+      const maxCustomerReturned = 3;
+
       const customers: Array<Customer> | null =
         await this.prismaService.customer.findMany({
+          take: maxCustomerReturned,
           where: {
             phone: { startsWith: phone },
           },

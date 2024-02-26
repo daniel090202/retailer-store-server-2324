@@ -4,6 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '@/auth/auth.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
+import { HttpModule, HttpService } from '@nestjs/axios';
+
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 
@@ -35,6 +37,7 @@ import { SalesModule } from './sales/sales.module';
     CouponsModule,
     NotificationsModule,
     SalesModule,
+    HttpModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, UsersService],
