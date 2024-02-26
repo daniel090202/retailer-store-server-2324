@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { Counter } from '@prisma/client';
-import { PrismaService } from '@/prisma/prisma.service';
 
-import { CounterDTO } from '@/models';
+import { CounterDTO } from '../models';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 class CountersService {

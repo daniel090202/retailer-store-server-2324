@@ -1,14 +1,6 @@
-import {
-  Get,
-  Put,
-  Post,
-  Body,
-  Query,
-  HttpCode,
-  Controller,
-} from '@nestjs/common';
+import { Get, Post, Body, Query, HttpCode, Controller } from '@nestjs/common';
 
-import { CounterDTO } from '@/models';
+import { CounterDTO } from '../models';
 
 import { CountersService } from './counters.service';
 

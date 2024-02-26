@@ -1,6 +1,6 @@
 import { Get, Post, Body, Query, HttpCode, Controller } from '@nestjs/common';
 
-import { CouponDTO } from '@/models';
+import { CouponDTO } from '../models';
 
 import { CouponsService } from './coupons.service';
 

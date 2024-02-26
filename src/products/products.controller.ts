@@ -8,7 +8,7 @@ import {
   Controller,
 } from '@nestjs/common';
 
-import { ProductDTO } from '@/models';
+import { ProductDTO } from '../models';
 
 import { ProductsService } from './products.service';
 

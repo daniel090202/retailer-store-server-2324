@@ -8,7 +8,7 @@ import {
   Controller,
 } from '@nestjs/common';
 
-import { CustomerDTO } from '@/models';
+import { CustomerDTO } from '../models';
 
 import { CustomersService } from './customers.service';
 @Controller('api/v1/customers')

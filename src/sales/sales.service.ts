@@ -1,7 +1,7 @@
+import { Order } from '@prisma/client';
 import { HttpStatus, Injectable } from '@nestjs/common';
 
-import { Order } from '@prisma/client';
-import { PrismaService } from '@/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 class SalesService {

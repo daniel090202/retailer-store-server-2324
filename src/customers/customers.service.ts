@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { Customer } from '@prisma/client';
-import { PrismaService } from '@/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
-import { CustomerDTO } from '@/models';
+import { CustomerDTO } from '../models';
 
 @Injectable()
 class CustomersService {

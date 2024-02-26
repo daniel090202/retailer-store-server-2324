@@ -5,10 +5,10 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, HttpStatus } from '@nestjs/common';
 
 import { User } from '@prisma/client';
-import { PrismaService } from '@/prisma/prisma.service';
 
-import { UserDTO } from '@/models';
-import { SMTP } from '@/services';
+import { SMTP } from '../services';
+import { UserDTO } from '../models';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable({})
 class UsersService {

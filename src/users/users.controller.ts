@@ -8,11 +8,11 @@ import {
   UseGuards,
   Controller,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 
-import { UserDTO } from '@/models';
-import { User } from '@prisma/client';
-import { GetUser } from '@/decorators';
+import { UserDTO } from '../models';
+import { GetUser } from '../decorators';
 
 import { UsersService } from './users.service';
 

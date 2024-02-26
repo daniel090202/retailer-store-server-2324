@@ -12,13 +12,13 @@ import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
 import { UsersController } from './users/users.controller';
 
+import { SalesModule } from './sales/sales.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { ProductsModule } from './products/products.module';
 import { CountersModule } from './counters/counters.module';
 import { CustomersModule } from './customers/customers.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { SalesModule } from './sales/sales.module';
 
 @Module({
   imports: [

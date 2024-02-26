@@ -1,6 +1,6 @@
 import { Get, Post, Body, Query, HttpCode, Controller } from '@nestjs/common';
 
-import { OrderDTO } from '@/models';
+import { OrderDTO } from '../models';
 
 import { OrdersService } from './orders.service';
 

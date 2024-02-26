@@ -8,7 +8,7 @@ import {
   Controller,
 } from '@nestjs/common';
 
-import { NotificationDTO } from '@/models';
+import { NotificationDTO } from '../models';
 
 import { NotificationsService } from './notifications.service';
 
