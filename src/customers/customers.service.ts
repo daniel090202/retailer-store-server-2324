@@ -42,9 +42,10 @@ class CustomersService {
         };
       }
     } catch (error) {
+      console.error(error);
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error.',
+        message: error.message,
       };
     }
   }
