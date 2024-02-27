@@ -86,7 +86,7 @@ class AuthService {
     } catch (error) {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error.',
+        message: error.message,
       };
     }
   }
